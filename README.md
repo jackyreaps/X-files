@@ -28,11 +28,15 @@ The residual-flux parity μ_n = ∫ tr(M_s) ds mod 2 supplies the missing global
 ## Repository Contents
 
 | File | Description |
-|------|-------------|
-| `01-priority-declaration.md` | Dated priority statement establishing independent origination |
-| `02-master-framework.md` | Complete mathematical framework: all three layers, Documents A/B/C, dimensional scaling |
-| `03-open-problems.md` | Mapping of the framework to established open problems: S⁶, Collatz, Navier–Stokes, dimensional ladder |
-| `04-x-posts-index.md` | Chronological index of all X posts with cross-references to framework components |
+| --- | --- |
+| `01-priority-declaration.md` | Dated priority statement |
+| `02-master-framework.md` | Complete mathematical framework |
+| `03-open-problems.md` | Mapping to established open problems |
+| `04-x-posts-index.md` | Chronological index of X posts |
+| `05-formalisation-gaps.md` | Audit: what is proved, what is missing, what is unformalisable |
+| `06-dimensional-table-corrected.md` | Corrected dimensional scaling table (S⁴ attribution, Λ nilpotency) |
+| `07-conditional-NS.md` | Conditional theorem for Navier–Stokes with explicit hypotheses |
+| `08-conditional-S6.md` | Conditional theorem for S⁶ complex structure with explicit hypotheses |
 
 ---
 
