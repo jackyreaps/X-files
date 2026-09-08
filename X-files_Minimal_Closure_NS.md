@@ -78,6 +78,16 @@ The X-files conditional theorem is structurally similar to known regularity crit
 
 **The X-files contribution:** The framework converts the regularity question from a functional-analytic integrability condition into a **topological charge conservation problem**. Whether this conversion is useful depends on whether [H-NS-1]–[H-NS-3] can be verified independently.
 
+
+## 5. Audit Criteria for the Sept 8, 2026 OpenAI "Spaghetti-Vortex" Claim
+
+OpenAI's automated model pipeline claims a finite-time blow-up characterized by an "elongating, spiraling vortex like spaghetti." Under this Minimal Closure framework, their proof must be audited against our established hypotheses:
+
+1. **The Energy-Parity Conflict ([H-NS-3]):** For a true, unforced finite-time singularity to occur, the sharpening of their elongating vortex must cause the modified energy $\{E}(t)$ to violate $d\{E}/dt \le 0$. If the viscous term $\nu \Delta u$ naturally dampens this deformation, the parity $\mu(t)$ remains structurally locked, arresting the blow-up.
+2. **The Forcing Trick Check:** Automated agent grids are highly susceptible to introducing discretization artifacts or subtle forcing terms ($\mathbf{f} \neq 0$). If their vortex profile requires an active forcing envelope to sustain stretching against viscous diffusion, it fails the Millennium criteria for isolated fluid smoothness.
+3. **Incompressibility Validation ([H-NS-1c]):** The infinite geometric elongation of their spaghetti vortex must be shown to maintain a unipotent triangular Jacobian map $G(t)$ with $\det J_{G(t)} = 1$ up to the boundary limit $T^*$. If $\det J$ collapses, the proof introduces an unphysical coordinate singularity rather than a true physical fluid blow-up.
+
+
 ---
 
 *Document prepared August 28, 2026. Minimal closure within the X-files framework, no external machinery imported.*
