@@ -47,6 +47,13 @@ This is not a proof that no singularity can form. It only constrains the admissi
 5. **Caffarelli–Kohn–Nirenberg (CKN) compatibility**.  
    The singular set of a suitable weak solution has parabolic Hausdorff dimension at most 1. Any constructed self-similar singular profile restricted to a local spacetime box must prove compatibility with the global weak solution space; a persistent space-curve filament of positive length over a positive time interval sits in structural tension with this theorem unless extraordinary, globally balanced structure is present.
 
+### The Force Paradox on Infinity (The Algorithmic Cheat)
+
+The multi-agent optimization framework relies on a fatal mathematical contradiction at the singular limit \( t \to T \). To maintain a net-zero viscosity sandbox and bypass viscous friction, the reverse-engineered forcing profile \(\mathbf{f}(\mathbf{x}, t)\) must scale dynamically to perfectly counter-balance the viscous Laplacian (\(\nu\Delta\mathbf{u}\)).
+
+As the vortex core radius compresses (\( r(t) \to 0 \)), the spatial derivatives spike exponentially, forcing both \(\nu\Delta\mathbf{u}\) and the required balancing input \(\mathbf{f}\) toward infinity. This introduces a circular mathematical paradox: the proof requires an inadmissible, infinitely scaling external energy spike *inside the input variable itself* to trigger a singularity in the velocity field.
+
+Furthermore, at the exact instant of the blow-up (\( t = T \)), the spatial domain of this compactly supported force collapses into a zero-volume mathematical point. A function cannot remain smooth and classically differentiable on a continuous space-time manifold when its domain of definition degenerates into an unphysical Dirac delta artifact. The model is an artificial singularity engine, not a valid physical or mathematical solution.
 ---
 
 ## 2. Three-Body Problem: Angular Momentum versus Potential
