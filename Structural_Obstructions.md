@@ -1,107 +1,86 @@
-# Structural Invariants and Scaling Obstructions for Navier–Stokes and the Three-Body Problem
+# Structural Invariants and Scaling Obstructions for Navier-Stokes and the Three-Body Problem
 
-This note collects scaling heuristics and classical invariant constraints that any claimed finite-time singularity in the 3D incompressible Navier–Stokes equations or the Newtonian three-body problem must confront. The emphasis is on *intrinsic* balances (dissipation versus stretching, angular momentum versus potential) versus extrinsic mechanisms (velocity-dependent forcing, degenerate coordinates, artificial parameter tuning).
+This note collects scaling heuristics and classical invariant constraints that any claimed finite-time singularity in the 3D incompressible Navier-Stokes equations or the Newtonian three-body problem must confront. The emphasis is on intrinsic balances (dissipation versus stretching, angular momentum versus potential) versus extrinsic mechanisms (velocity-dependent forcing, degenerate coordinates, artificial parameter tuning).
 
 The arguments are **obstructions and necessary filters**, not completed regularity theorems.
 
 ---
 
-## 1. Navier–Stokes: Viscous versus Stretching Scales
+## 1. Navier-Stokes: Viscous versus Stretching Scales
 
-Consider a smooth, divergence-free solution of the unforced 3D Navier–Stokes equations on \(\mathbb{R}^3\) (or \(\mathbb{T}^3\)):
+Consider a smooth, divergence-free solution of the unforced 3D Navier-Stokes equations:
 
-$$
-\partial_t\mathbf{u} + (\mathbf{u}\cdot\nabla)\mathbf{u} = -\nabla p + \nu\Delta\mathbf{u}, \qquad \nabla\cdot\mathbf{u} = 0.
-$$
+du/dt + (u · ∇)u = -∇p + ν Δu,   ∇ · u = 0
 
-The vorticity formulation is
+The vorticity formulation is:
 
-$$
-\partial_t\boldsymbol{\omega} + (\mathbf{u}\cdot\nabla)\boldsymbol{\omega} = (\boldsymbol{\omega}\cdot\nabla)\mathbf{u} + \nu\Delta\boldsymbol{\omega}.
-$$
+dω/dt + (u · ∇)ω = (ω · ∇)u + ν Δω
 
 ### Scaling for a filamentary geometry
 
-Suppose a localized vortex structure of characteristic core radius \(r(t)\to 0\) and peak vorticity \(\Omega(t) = \|\boldsymbol{\omega}(\cdot,t)\|_{L^\infty}\). Under the assumption that the structure remains roughly filamentary (length \(L(t)\) with \(r\sim L^{-1/2}\) by incompressibility), the two competing terms admit the dimensional bounds
+Suppose a localized vortex structure of characteristic core radius r(t) going to 0 and peak vorticity Ω(t). Under the assumption that the structure remains roughly filamentary, the two competing terms scale as:
 
-$$
-|(\boldsymbol{\omega}\cdot\nabla)\mathbf{u}| \lesssim \frac{\Omega^2}{r}, \qquad
-|\nu\Delta\boldsymbol{\omega}| \gtrsim \frac{\nu\Omega}{r^2}.
-$$
+|(ω · ∇)u|  ~  Ω² / r
 
-Their ratio therefore satisfies
+|ν Δω|      ~  ν Ω / r²
 
-$$
-\frac{|\nu\Delta\boldsymbol{\omega}|}{|(\boldsymbol{\omega}\cdot\nabla)\mathbf{u}|} \gtrsim \frac{\nu}{r\Omega}.
-$$
+Their ratio therefore satisfies:
 
-By the Beale–Kato–Majda criterion, a singularity at \(T^*\) requires
+|ν Δω| / |(ω · ∇)u|  ~  ν / (r Ω)
 
-$$
-\int_0^{T^*} \Omega(t)\,dt = \infty.
-$$
+By the Beale-Kato-Majda criterion, a singularity at time T* requires the integral of Ω(t) from 0 to T* to be infinite.
 
-If, in addition, \(\Omega(t)\) does not grow faster than roughly \(1/r(t)\), the ratio tends to infinity and viscous dissipation dominates. This supplies a **scaling obstruction** for certain “spaghetti-type” geometries in the unforced equations: the quadratic decay of the core radius tends to overpower linear stretching.
+If Ω(t) does not grow faster than roughly 1/r(t), the ratio tends to infinity and viscous dissipation dominates. This supplies a scaling obstruction for certain filament-type geometries in the unforced equations.
 
-The obstruction is *not* a proof that no singularity can form; it only constrains the admissible relative growth rates of \(\Omega\) and \(r\). Self-similar or more elaborate ansätze may balance the terms differently.
+This is not a proof that no singularity can form. It only constrains the admissible relative growth rates of Ω and r.
 
 ### Necessary filters for any claimed singularity
 
-1. **Force structure** (if the claim is forced)  
-   The external force \(\mathbf{f}\) must belong to a clearly stated function class. If \(\mathbf{f}\) is permitted to depend on \(u\) (or its derivatives) in a way that cancels or overpowers \(\nu\Delta u\), the problem is effectively reduced to a driven Euler system.
+1. Force structure (if the claim is forced)  
+   The external force f must belong to a clearly stated function class. If f depends on u in a way that cancels or overpowers the viscous term, the problem is reduced to a driven Euler system.
 
-2. **Coordinate non-degeneracy**  
-   Any change of coordinates \(\Phi_t\) used in the construction must satisfy \(\inf|\det D\Phi_t| \ge \delta > 0\) up to the putative singular time. Otherwise one may be observing a coordinate collapse rather than a physical blow-up of velocity or vorticity norms.
+2. Coordinate non-degeneracy  
+   Any change of coordinates used in the construction must keep the Jacobian determinant bounded away from zero. Otherwise the singularity may only be a coordinate collapse.
 
-3. **Caffarelli–Kohn–Nirenberg compatibility**  
-   The singular set of a suitable weak solution has parabolic Hausdorff dimension at most 1. A persistent space-curve filament of positive length over a positive time interval sits in tension with this theorem unless extraordinary structure is present.
+3. Caffarelli-Kohn-Nirenberg compatibility  
+   The singular set of a suitable weak solution has parabolic Hausdorff dimension at most 1. A long-lived filament of positive length is in tension with this theorem.
 
 ---
 
 ## 2. Three-Body Problem: Angular Momentum versus Potential
 
-The Newtonian three-body equations are
+The Newtonian three-body equations are:
 
-$$
-m_i\ddot{\mathbf{q}}_i = \sum_{j\neq i} G m_i m_j \frac{\mathbf{q}_j - \mathbf{q}_i}{|\mathbf{q}_j - \mathbf{q}_i|^3}.
-$$
+m_i * q_i'' = sum_{j ≠ i} G * m_i * m_j * (q_j - q_i) / |q_j - q_i|³
 
-Let \(I(t)\) be the moment of inertia about the centre of mass and \(U(t)\) the potential. The Lagrange–Jacobi identity reads
+Let I(t) be the moment of inertia about the centre of mass. The Lagrange-Jacobi identity is:
 
-$$
-\frac12\ddot{I} = 2K - U = 2E + U,
-$$
+(1/2) I'' = 2K - U = 2E + U
 
-where \(E = K - U\) is the total energy.
+A singularity can be a collision or a non-collision singularity in which I(t) goes to infinity in finite time while distances stay positive.
 
-A singularity can be a collision (\(R(t) = \min_{i\neq j}|\mathbf{q}_i - \mathbf{q}_j| \to 0\)) or, more exotically, a non-collision singularity in which \(I(t)\to\infty\) in finite time while all mutual distances remain positive. The latter requires extremely rapid, carefully arranged near-misses.
+Angular momentum J supplies a barrier:
 
-Angular momentum \(J\) supplies a classical barrier via
+K ≥ |J|² / (2I)
 
-$$
-K \ge \frac{|J|^2}{2I}.
-$$
+Any construction that drives I to infinity while keeping distances positive must overcome this rotational barrier.
 
-Any construction that drives \(I\to\infty\) while keeping distances bounded away from zero must overcome this rotational inertia. In numerical or multi-agent searches this is often achieved by fine-tuning or by effectively suppressing angular momentum. In a genuine continuous trajectory the barrier remains.
-
-Again, the observation is an obstruction and a filter, not a theorem excluding all non-collision singularities (whose existence in three dimensions remains subtle).
+This is an obstruction and a filter, not a theorem that rules out all non-collision singularities.
 
 ---
 
-## 3. Comparison of Structural Roles
+## 3. Comparison Table
 
-| Role | Navier–Stokes | Three-Body Problem |
-|------|---------------|--------------------|
-| Destabilising mechanism | Vorticity stretching \((\boldsymbol{\omega}\cdot\nabla)\mathbf{u}\) | Potential-driven acceleration \(\ddot{I}\) |
-| Stabilising / dissipative mechanism | Viscous Laplacian \(\nu\Delta\boldsymbol{\omega}\) | Angular-momentum barrier \(\lvert J\rvert^2/(2I)\) |
-| Singular behaviour | \(\|\boldsymbol{\omega}\|_{L^\infty}\) or enstrophy \(\to\infty\) | \(I(t)\to\infty\) or \(R(t)\to 0\) |
-| Common computational loopholes | Velocity-dependent forcing; \(\det J\to 0\) | Artificial suppression of angular momentum; grid fine-tuning |
+| Role                          | Navier-Stokes                    | Three-Body Problem                     |
+|-------------------------------|----------------------------------|----------------------------------------|
+| Destabilising mechanism       | Vorticity stretching (ω · ∇)u    | Potential-driven acceleration I''      |
+| Stabilising mechanism         | Viscous term ν Δω                | Angular momentum barrier |J|²/(2I)     |
+| Singular behaviour            | Vorticity or enstrophy → ∞       | I(t) → ∞ or minimum distance → 0       |
+| Common loopholes              | Velocity-dependent force, det J → 0 | Suppressing angular momentum, grid tuning |
 
 ---
 
 ## 4. Practical Pre-Filter Script
-
-The following Python script is a *lightweight keyword filter only*. It cannot certify mathematical correctness; it merely flags language that often accompanies the loopholes above. Use it as a first screen, never as a substitute for analysis.
 
 ```python
 import re
@@ -111,18 +90,15 @@ def structural_filter(file_path):
     with open(file_path, 'r', encoding='utf-8') as f:
         text = f.read()
 
-    print(f"=== Structural filter on: {file_path} ===")
+    print("=== Structural filter on:", file_path, "===")
     flags = []
 
-    # Force dependence
     if re.search(r'(f\s*`\(\s*u|force.*depend.*velocity|cancel.*viscos|shadow.*laplacian)', text, re.I):
         flags.append("Possible velocity-dependent or viscosity-cancelling force")
 
-    # Coordinate degeneracy
     if re.search(r'(det\s*`\(?\s*J\s*\)`?\s*(→|->|to)\s*0|collaps(e|ing)\s+(chart|coord|mesh|grid))', text, re.I):
-        flags.append("Possible coordinate / mesh degeneracy")
+        flags.append("Possible coordinate or mesh degeneracy")
 
-    # Angular momentum suppression (three-body)
     if re.search(r'(angular\s+momentum\s*=\s*0|set\s+J\s*=\s*0|neglect.*rotation)', text, re.I):
         flags.append("Possible suppression of angular momentum")
 
@@ -130,8 +106,8 @@ def structural_filter(file_path):
         print("No common loophole keywords detected.")
     else:
         print("Flags raised:")
-        for f in flags:
-            print("  -", f)
+        for item in flags:
+            print(" -", item)
         print("\nManual mathematical inspection required.")
 
 if __name__ == "__main__":
@@ -139,3 +115,19 @@ if __name__ == "__main__":
         print("Usage: python structural_filter.py <manuscript.txt>")
     else:
         structural_filter(sys.argv[1])
+
+---
+
+## 5. Summary
+
+| Point                             | Statement                                                                 |
+|-----------------------------------|---------------------------------------------------------------------------|
+| Type of document                  | Heuristic scaling obstructions and necessary filters                      |
+| Main Navier-Stokes obstruction    | Viscosity can dominate stretching as the core radius goes to zero         |
+| Main Three-Body obstruction       | Angular momentum acts as a barrier against certain singularities          |
+| Required checks for any claim     | Force class, non-degenerate coordinates, CKN dimension bounds             |
+| What this document does not claim | A full proof of regularity or complete exclusion of singularities         |
+
+- Unforced Navier-Stokes and the Newtonian three-body problem possess intrinsic stabilising mechanisms (viscosity and angular momentum).
+- Any claimed singularity must still clear the classical filters listed above.
+- These are useful tools for scrutiny, not finished existence or non-existence theorems.
