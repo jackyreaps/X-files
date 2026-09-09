@@ -94,7 +94,7 @@ def structural_filter(file_path):
     flags = []
 
     if re.search(r'(f\s*`\(\s*u|force.*depend.*velocity|cancel.*viscos|shadow.*laplacian)', text, re.I):
-        flags.append("Possible velocity-dependent or viscosity-cancelling force")
+        flags.append("Possible velocity-dependent or viscosity-cancellingn force")
 
     if re.search(r'(det\s*`\(?\s*J\s*\)`?\s*(→|->|to)\s*0|collaps(e|ing)\s+(chart|coord|mesh|grid))', text, re.I):
         flags.append("Possible coordinate or mesh degeneracy")
@@ -115,6 +115,7 @@ if __name__ == "__main__":
         print("Usage: python structural_filter.py <manuscript.txt>")
     else:
         structural_filter(sys.argv[1])
+```
 
 ---
 
@@ -126,7 +127,7 @@ if __name__ == "__main__":
 | Main Navier-Stokes obstruction    | Viscosity can dominate stretching as the core radius goes to zero         |
 | Main Three-Body obstruction       | Angular momentum acts as a barrier against certain singularities          |
 | Required checks for any claim     | Force class, non-degenerate coordinates, CKN dimension bounds             |
-| What this document does not claim | A full proof of regularity or complete exclusion of singularities         |
+| What this document does not claim | A full proof of regularity or complete exclusion of singularities         |no
 
 - Unforced Navier-Stokes and the Newtonian three-body problem possess intrinsic stabilising mechanisms (viscosity and angular momentum).
 - Any claimed singularity must still clear the classical filters listed above.
