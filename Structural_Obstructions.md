@@ -47,13 +47,13 @@ The obstruction is *not* a proof that no singularity can form; it only constrain
 
 ### Necessary filters for any claimed singularity
 
-1. **Force structure** (if the claim is forced).  
+1. **Force structure** (if the claim is forced)  
    The external force \(\mathbf{f}\) must belong to a clearly stated function class. If \(\mathbf{f}\) is permitted to depend on \(u\) (or its derivatives) in a way that cancels or overpowers \(\nu\Delta u\), the problem is effectively reduced to a driven Euler system.
 
-2. **Coordinate non-degeneracy**.  
+2. **Coordinate non-degeneracy**  
    Any change of coordinates \(\Phi_t\) used in the construction must satisfy \(\inf|\det D\Phi_t| \ge \delta > 0\) up to the putative singular time. Otherwise one may be observing a coordinate collapse rather than a physical blow-up of velocity or vorticity norms.
 
-3. **Caffarelli–Kohn–Nirenberg compatibility**.  
+3. **Caffarelli–Kohn–Nirenberg compatibility**  
    The singular set of a suitable weak solution has parabolic Hausdorff dimension at most 1. A persistent space-curve filament of positive length over a positive time interval sits in tension with this theorem unless extraordinary structure is present.
 
 ---
