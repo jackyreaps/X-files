@@ -53,5 +53,4 @@ The Rotational Inertia Conservation Barrier:
 Enforces that angular momentum suppression is not utilized as an artifact 
 to artificially accelerate local fluid velocity profiles.
 -/
-def PreservesRotationalInertia (I : ℝ → ℝ) (J : ℝ³) (min_I : ℝ) : Prop :=
-  ∀ t, min_I ≤ I t ∧ 0 < min_I
+
