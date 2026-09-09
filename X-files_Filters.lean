@@ -48,9 +48,4 @@ def HasEnergyParityClosure (f : ℝ → ℝ³ → ℝ³) (u_init : ℝ³ → ℝ
 
     δ ≤ |matrixDet (fderiv ℝ (m.Φ t) x).toMatrix|
 
-/--
-The Rotational Inertia Conservation Barrier:
-Enforces that angular momentum suppression is not utilized as an artifact 
-to artificially accelerate local fluid velocity profiles.
--/
 
