@@ -1,12 +1,12 @@
 import Mathlib.Analysis.Calculus.ContDiff.Basic
 import Mathlib.Analysis.Calculus.FDeriv.Basic
-import Mathlib.Analysis.InnerProductSpace.EuclideanDist
+import Mathlib.Analysis.InnerProductSpace.PiL2
 import Mathlib.Analysis.SpecialFunctions.Integrals
 import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
 import Mathlib.MeasureTheory.Integral.Bochner
 import Mathlib.Topology.MetricSpace.Basic
 
-open Function Set MeasureTheory
+open Function Set MeasureTheory ContinuousLinearMap
 
 /-!
 # X-files Analytical Filters: Coordinate Non-Degeneracy & Energy-Parity
@@ -19,6 +19,9 @@ unbounded localized energy injection profile overrides.
 
 /-- Convenience notation for Euclidean 3-space. -/
 abbrev ℝ³ := EuclideanSpace ℝ (Fin 3)
+
+/-- Standard orthonormal basis on ℝ³. -/
+noncomputable def stdBasis : Basis (Fin 3) ℝ ℝ³ := PiLp.basisFun _ ℝ _
 
 /-- Spacetime embedding with a non-degeneracy threshold `δ`. -/
 structure SpacetimeEmbedding (δ : ℝ) (hδ : 0 < δ) where
@@ -34,7 +37,7 @@ stays bounded away from zero by the physical threshold `δ`.
 noncomputable def IsNonDegenerate {δ : ℝ} {hδ : 0 < δ}
     (m : SpacetimeEmbedding δ hδ) (T : ℝ) : Prop :=
   ∀ t ∈ Icc 0 T, ∀ x : ℝ³,
-    δ ≤ |(fderiv ℝ (m.Φ t) x).toMatrix (PiLp.basisFun _ ℝ _) (PiLp.basisFun _ ℝ _)|.det|
+    δ ≤ |((fderiv ℝ (m.Φ t) x).toMatrix stdBasis stdBasis).det|
 
 /--
 The Rotational Inertia Conservation Barrier:
@@ -47,11 +50,20 @@ def PreservesRotationalInertia (I : ℝ → ℝ) (min_I : ℝ) : Prop :=
 /--
 The Energy-Parity Closure Bound Filter:
 Enforces that the cumulative energy injected into the localized domain by the
-forcing profile `f` over time `T` does not scale infinitely, ensuring that
-the system accounts for environmental back-reaction constraints.
+forcing profile `f` over time `T` does not scale infinitely.
 -/
 noncomputable def HasEnergyParityClosure
     (f : ℝ → ℝ³ → ℝ³) (E_max : ℝ) (T : ℝ) : Prop :=
   0 < E_max ∧
   ∀ t ∈ Icc 0 T,
     ∫ x : ℝ³, ‖f t x‖ ≤ E_max
+
+/-- Combined filter: all three analytic conditions must hold. -/
+noncomputable def PassesXfilesFilters {δ : ℝ} {hδ : 0 < δ}
+    (m : SpacetimeEmbedding δ hδ)
+    (I : ℝ → ℝ) (min_I : ℝ)
+    (f : ℝ → ℝ³ → ℝ³) (E_max : ℝ)
+    (T : ℝ) : Prop :=
+  IsNonDegenerate m T ∧
+  PreservesRotationalInertia I min_I ∧
+  HasEnergyParityClosure f E_max T
