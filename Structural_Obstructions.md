@@ -36,14 +36,16 @@ This is not a proof that no singularity can form. It only constrains the admissi
 
 ### Necessary filters for any claimed singularity
 
-1. Force structure (if the claim is forced)  
-   The external force f must belong to a clearly stated function class. If f depends on u in a way that cancels or overpowers the viscous term, the problem is reduced to a driven Euler system.
-
-2. Coordinate non-degeneracy  
-   Any change of coordinates used in the construction must keep the Jacobian determinant bounded away from zero. Otherwise the singularity may only be a coordinate collapse.
-
-3. Caffarelli-Kohn-Nirenberg compatibility  
-   The singular set of a suitable weak solution has parabolic Hausdorff dimension at most 1. A long-lived filament of positive length is in tension with this theorem.
+1. **Force structure** (if the claim is forced).  
+   The external force $\mathbf{f}$ must belong to a clearly stated function class. If $\mathbf{f}$ is permitted to depend on $\mathbf{u}$ (or its derivatives) in a way that cancels or overpowers $\nu\Delta \mathbf{u}$, the problem is effectively reduced to a driven Euler system.
+2. **Coordinate non-degeneracy**.  
+   Any change of coordinates $\Phi_t$ used in the construction must satisfy $\inf|\det D\Phi_t|\ge\delta>0$ up to the putative singular time. Otherwise one may be observing a coordinate collapse rather than a physical blow-up of velocity or vorticity norms.
+3. **Energy-Parity Closure Bounds**.  
+   The total kinetic energy of the system must remain bounded by the initial energy input minus viscous dissipation over time. Any constructed forcing profile $\mathbf{f}(\mathbf{x}, t)$ must not continuously inject unbounded localized energy without accounting for environmental counter-vortices or back-reactions that would physically disrupt the vortex core.
+4. **Explicit Core Spatial Decay Rates**.  
+   The aspect ratio ($\ell_z/\ell_r$) governing the vortex core geometry must satisfy strict spatial decay and scaling constraints as $r(t) \to 0$. Decoupling the dimensions to allow unconstrained axial stretching effectively treats a 3D fluid as a 1D line string, artificially bypassing 3D pressure-gradient dampening fields.
+5. **Caffarelli–Kohn–Nirenberg (CKN) compatibility**.  
+   The singular set of a suitable weak solution has parabolic Hausdorff dimension at most 1. Any constructed self-similar singular profile restricted to a local spacetime box must prove compatibility with the global weak solution space; a persistent space-curve filament of positive length over a positive time interval sits in structural tension with this theorem unless extraordinary, globally balanced structure is present.
 
 ---
 
@@ -69,14 +71,14 @@ This is an obstruction and a filter, not a theorem that rules out all non-collis
 
 ---
 
-## 3. Comparison Table
+## 3. Comparison of Structural Roles
 
-| Role                          | Navier-Stokes                    | Three-Body Problem                     |
-|-------------------------------|----------------------------------|----------------------------------------|
-| Destabilising mechanism       | Vorticity stretching (ω · ∇)u    | Potential-driven acceleration I''      |
-| Stabilising mechanism         | Viscous term ν Δω                | Angular momentum barrier |J|²/(2I)     |
-| Singular behaviour            | Vorticity or enstrophy → ∞       | I(t) → ∞ or minimum distance → 0       |
-| Common loopholes              | Velocity-dependent force, det J → 0 | Suppressing angular momentum, grid tuning |
+| Role | Navier–Stokes | Three-Body Problem |
+| :--- | :--- | :--- |
+| **Destabilising mechanism** | Vorticity stretching ($(\boldsymbol{\omega}\cdot\nabla)\mathbf{u}$) | Potential-driven acceleration ($\ddot{I}$) |
+| **Stabilising / dissipative mechanism** | Viscous Laplacian ($\nu\Delta\boldsymbol{\omega}$) | Angular-momentum barrier ($\lvert J\rvert^2/(2IItems)$) |
+| **Singular behaviour** | ($\lvert\boldsymbol{\omega}\rvert_{L^\infty}$) or enstrophy ($\to\infty$) | ($I(t)\to\infty$) or ($R(t)\to0$) |
+| **Common computational loopholes** | Velocity-dependent forcing; $\det D\Phi_t \to 0$; unconstrained localized energy injection | Artificial suppression of angular momentum; grid fine-tuning |
 
 ---
 
