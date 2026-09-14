@@ -42,6 +42,9 @@ The residual-flux parity μ_n = ∫ tr(M_s) ds mod 2 supplies the missing global
 | `Structural_Obstructions.md` | Scaling obstructions & practical filters for NS and three-body |
 | `X-files_Filters.lean` | Lean filters: coordinate non-degeneracy, rotational inertia, energy-parity |
 | `X-files_Unforced_Boundary.lean` | Lean predicate `IsStrictlyUnforced` and forced-vs-unforced classifier |
+| `Euler_Discrepancy_Audit.md` | Methodological parallels: forcing dependency & coordinate degeneracy |
+| `VolumePreservation.lean` | Liouville interface for incompressible flows (δ = 1 non-degeneracy) |
+| `VolumePreservationLemmas.lean` | Algebraic support + Jacobi Fin-3 interface (points at mathlib4#41881) |
 
 ---
 
@@ -86,20 +89,13 @@ All applications are **conditional theorems**: the algebraic core is proved; the
 
 ## Analytical Filters (Lean)
 
-Two Lean modules supply machine-checkable filters that any claimed singularity must pass:
+Three Lean modules supply machine-checkable filters that any claimed singularity must pass:
 
-1. **`X-files_Unforced_Boundary.lean`**  
-   - `IsStrictlyUnforced f` — external force identically zero  
-   - Forced constructions (including the 8 Sep 2026 OpenAI “spaghetti-vortex”) are automatically classified as outside the classical unforced Millennium statement.
+1. **X-files_Unforced_Boundary.lean** — `IsStrictlyUnforced`; forced constructions fall outside the classical unforced Millennium statement.
+2. **X-files_Filters.lean** — coordinate non-degeneracy, rotational-inertia barrier, energy-parity closure.
+3. **VolumePreservation.lean** — Liouville interface (`det DΦ ≡ 1` for incompressible flows). Algebraic half closed; Jacobi pending mathlib4#41881; flow-regularity still open.
 
-2. **`X-files_Filters.lean`**  
-   - `IsNonDegenerate` — Jacobian determinant bounded away from zero  
-   - `PreservesRotationalInertia` — no artificial angular-momentum suppression  
-   - `HasEnergyParityClosure` — bounded cumulative energy injection  
-
-A singularity is admissible for the classical unforced problem only when it is strictly unforced **and** passes the analytic filters.
-
-See also `Structural_Obstructions.md` for the corresponding scaling heuristics and a lightweight keyword pre-filter.
+See also `Structural_Obstructions.md` and `Euler_Discrepancy_Audit.md`.
 
 ---
 
