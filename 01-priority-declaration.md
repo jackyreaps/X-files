@@ -28,9 +28,10 @@ The framework was developed and documented by the author on **July 25, 2026**, a
 
 ## Temporal Evidence
 
-- **July 25, 2026:** Priority documentation note posted on X (triangular Jacobian, IEEE-754 analysis, S⁶ application)
-- **August 2026:** Incremental X posts developing Documents A, B, C and the full three-layer architecture
-- **August 28, 2026:** This repository created as consolidated public record
+- July 25, 2026: Pinned X post documenting the hierarchical triangular
+  Jacobian (unipotent, det = 1, eigenvalues {1,1,1}, explicit global
+  inverse). Status ID: 2081364597324370242.
+  URL: https://x.com/jackyreaps/status/2081364597324370242
 
 ## Attribution Notice
 
