@@ -40,6 +40,25 @@ axially as τ^{1/2−h}, with aspect ratio ℓ_z/ℓ_r ∼ τ^{−h} diverging
 as τ → 0. The coordinate map is degenerating. The question is whether
 the determinant is maintained.
 
+### Exponent Consistency
+
+The self-similar rescaling is anisotropic: radial scale λ_r(t), axial
+scale λ_z(t). For the velocity field to remain divergence-free, the
+product λ_r² λ_z must equal 1 up to T*. The construction's stated
+exponents are λ_r = τ^(1/2) and λ_z = τ^(1/2−h). This gives
+
+    λ_r² λ_z = τ · τ^(1/2−h) = τ^(3/2−h)
+
+which equals 1 for all τ only if h = 3/2.
+
+This check assumes the rescaling is diagonal. If the construction
+uses a non-diagonal coordinate map, the product λ_r² λ_z is not the
+determinant, and the arithmetic does not apply in this form.
+
+The question is whether the paper's exponent h satisfies h = 3/2, or
+whether the exponents are normalized differently than the diagonal
+model assumes.
+
 ## 3. The Testable Question
 
 Does the OpenAI coordinate map maintain det(J_G) = 1 up to T*, or
