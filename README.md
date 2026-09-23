@@ -11,10 +11,26 @@
 
 ## What This Is
 
-This repository contains the complete priority-documented mathematical framework for a unified structural approach to the local-vs-global problem in manifold chart transitions, dynamical systems, and nonlinear PDEs.
+This repository is a public, timestamped research log of an independent structural framework built around hierarchical (triangular/unipotent) Jacobians and a discrete Möbius-fold / scar-tensor construction.  
 
-The framework was developed and posted incrementally on X (Twitter) starting July 25, 2026. This repository consolidates all formal documents, equations, and priority evidence into a single immutable public record. The original X posts (images) are referenced but not duplicated here — they remain the primary visual source.
+The algebraic core (Layer 1) is elementary and fully explicit.  
+The global and analytic layers (scar dynamics, residual-flux parity, information identity) are still at the level of **definitions + conditional templates**.  
 
+All claims about Navier–Stokes, \(S^6\), Collatz, etc. remain **conditional** on the existence and regularity of the embeddings that have not yet been constructed in full detail.  
+
+The newest module (Prime Tower Drift Hypothesis) is self-contained, numerically verified to \(n=10^5\), and independent of the heavier analytic claims.
+
+## Status of Major Directions (September 2026)
+
+| Direction                        | Status                                      | Notes |
+|----------------------------------|---------------------------------------------|-------|
+| Hierarchical triangular Jacobian | Complete & elementary                       | det = 1, explicit inverse |
+| Discrete Möbius / scar tensor    | Definitional + formalisation gaps           | See gap analysis |
+| Residual-flux parity             | Defined, not yet proved to control monodromy| — |
+| Navier–Stokes                    | Conditional template only                   | Requires unverified embedding hypotheses |
+| \(S^6\) complex structure        | Exploratory                                 | — |
+| Collatz                          | Heuristic gauge idea                        | — |
+| **Prime Tower Drift Hypothesis** | Numerically solid inside \(n\le 10^5\)       | Clean, self-contained module |
 ---
 
 ## The Three-Layer Architecture
