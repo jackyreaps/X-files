@@ -45,7 +45,7 @@ The residual-flux parity μ_n = ∫ tr(M_s) ds mod 2 supplies the missing global
 | `Euler_Discrepancy_Audit.md` | Methodological parallels: forcing dependency & coordinate degeneracy |
 | `VolumePreservation.lean` | Liouville interface for incompressible flows (δ = 1 non-degeneracy) |
 | `VolumePreservationLemmas.lean` | Algebraic support + Jacobi Fin-3 interface (points at mathlib4#41881) |
-05-OpenAI-structural-correspondence.md | Structural correspondence: X-files Layer 1 and the OpenAI NS correction tower
+05-OpenAI-structural-correspondence.md | Structural correspondence: X-files Layer 1 and the OpenAI NS correction tower |
 06-prime-tower-hypothesis.md           | Whitepaper: Dynamical coupling of x^x=y and Cipolla-normalized prime arrays
 prime_tower.py                         | High-precision numerical validation sieve (n = 10⁵ verification matrix)
 
