@@ -46,6 +46,9 @@ The residual-flux parity μ_n = ∫ tr(M_s) ds mod 2 supplies the missing global
 | `VolumePreservation.lean` | Liouville interface for incompressible flows (δ = 1 non-degeneracy) |
 | `VolumePreservationLemmas.lean` | Algebraic support + Jacobi Fin-3 interface (points at mathlib4#41881) |
 | `05-OpenAI-structural-correspondence.md` | Structural correspondence: X-files Layer 1 and the OpenAI NS correction tower |
+| `06-prime-tower-hypothesis.md | Whitepaper: Dynamical coupling of x^x=y and Cipolla-normalized prime arrays
+prime_tower.py               | High-precision numerical validation sieve (n = 10⁵ verification matrix)
+
 ---
 
 ## Quick Reference
@@ -82,6 +85,8 @@ Hol_γ(Φ_Λ) = ±1 μ_n = ∫_γ tr(M) ds mod 2
 - **Navier–Stokes Regularity** — orientation-reversing concentrations charged against energy (see `X-files_Minimal_Closure_NS.md`)
 - **General Chart Transitions** — triangular Jacobians guarantee global injectivity
 - **Information Partitioning** — exact identity with computable leakage
+- **Transcendental Attractors** — The prime-tower acts as an algorithmic throttle, taming exponential acceleration and locking $x^x=y$ into an invariant dual-state real equilibrium.
+
 
 All applications are **conditional theorems**: the algebraic core is proved; the PDE / geometric embeddings are stated as explicit hypotheses.
 
