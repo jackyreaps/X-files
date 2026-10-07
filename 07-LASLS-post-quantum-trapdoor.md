@@ -51,7 +51,10 @@ Lower-Anchor Skew-Linear Stacking method and weaponizing it into a post-quantum 
    Create a 4D lower-triangular polynomial automorphism mapping  
    G(X) = (P, Q, R, S)ᵀ utilizing secret, randomly generated high-degree non-linear modifier polynomials:
 
-P(x, y, z, w) = xQ(x, y, z, w) = y + g(x)R(x, y, z, w) = z + h(x, y)S(x, y, z, w) = w + k(x, y, z)
+P(x, y, z, w) = x
+Q(x, y, z, w) = y + g(x)
+R(x, y, z, w) = z + h(x, y)
+S(x, y, z, w) = w + k(x, y, z)
 
 2. **Generate Mixing Matrices**  
 Randomly generate two invertible 4 × 4 matrices A and B over a finite field 𝔽_q.  
@@ -68,7 +71,10 @@ Store { A⁻¹, B⁻¹, g, h, k } securely as the Private Key.
 
 **Secret Jacobian Matrix [J_G] (Lower-Triangular Anchor):**
 
-[  1      0      0      0  ] [ dg/dx   1      0      0  ] [ dh/dx  dh/dy   1      0  ] [ dk/dx  dk/dy  dk/dz   1  ]
+[  1      0      0      0  ]
+[ dg/dx   1      0      0  ]
+[ dh/dx  dh/dy   1      0  ]
+[ dk/dx  dk/dy  dk/dz   1  ]
 
 **Properties:**  
 det(J_G) = 1  
@@ -152,7 +158,12 @@ M = B⁻¹ · X̂
 To solve the 6D quantum bottleneck, map state coordinates  
 Vector Ψ = (x, y, z, u, v, w)ᵀ through a lower-triangular sequence G(Ψ):
 
-P1 = x          (The Fixed Lower Anchor) P2 = y + g1(x) P3 = z + g2(x, y) P4 = u + g3(x, y, z) P5 = v + g4(x, y, z, u) P6 = w + g5(x, y, z, u, v
+P1 = x          (The Fixed Lower Anchor)
+P2 = y + g1(x)
+P3 = z + g2(x, y)
+P4 = u + g3(x, y, z)
+P5 = v + g4(x, y, z, u)
+P6 = w + g5(x, y, z, u, v)
 
 **6D Mutually Unbiased Bases Constraint System under Lower-Triangular LASLS Mapping**
 
