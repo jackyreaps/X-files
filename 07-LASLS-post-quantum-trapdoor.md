@@ -1,58 +1,57 @@
+# 07 — LASLS: Lower-Anchor Skew-Linear Stacking
+
+**A Perturbed Triangular Multivariate Cryptosystem**
+
+**Author:** JackyReaps / AnooBus  
+**Date of original posts:** 26 July 2026  
+**Refined specification:** October 2026  
+**Status:** Research specification. Not standardized. Not recommended for deployment.
 
 ---
 
-07 — LASLS: Lower-Anchor Skew-Linear Stacking
-
-A Perturbed Triangular Multivariate Cryptosystem
-
-Author: JackyReaps / AnooBus
-Date of original posts: 26 July 2026
-Refined specification: October 2026
-Status: Research specification. Not standardized. Not recommended for deployment.
-
----
-
-0. Status and Scope
+## 0. Status and Scope
 
 This document specifies LASLS (Lower-Anchor Skew-Linear Stacking), a public-key cryptosystem in the Multivariate Public-Key Cryptography (MPKC) family. LASLS is a perturbed triangular multivariate scheme derived from the tame automorphism construction.
 
-Relationship to prior work. LASLS is structurally a variant of the TTM (Triangle Plus Minus) family of tame automorphism cryptosystems. The specific contributions here are:
+**Relationship to prior work.** LASLS is structurally a variant of the TTM (Triangle Plus Minus) family of tame automorphism cryptosystems. The specific contributions here are:
 
-1. The hierarchical Jacobian embedding from the X-files framework (02-master-framework.md).
+1. The hierarchical Jacobian embedding from the X-files framework (`02-master-framework.md`).
 2. An explicit internal perturbation construction.
 3. A machine-checkable correctness proof (Lean).
 
-Security posture. Security rests on the estimated hardness of a specific MinRank instance combined with resistance to linearization equations under perturbation. No security proof exists. See §6 for the full caveats.
+**Security posture.** Security rests on the estimated hardness of a specific MinRank instance combined with resistance to linearization equations under perturbation. No security proof exists. See §6 for the full caveats.
 
 ---
 
-1. Notation and Parameters
+## 1. Notation and Parameters
 
-Symbol Meaning
-q Field size (prime power)
-n Dimension (number of variables)
-d Maximum degree of secret polynomials
-r Perturbation subspace dimension
-F_q Finite field of order q
-X Column vector (x_1, ..., x_n)^T
-M Plaintext block in F_q^n
-C Ciphertext block in F_q^n
+| Symbol | Meaning |
+|--------|---------|
+| \( q \) | Field size (prime power) |
+| \( n \) | Dimension (number of variables) |
+| \( d \) | Maximum degree of secret polynomials |
+| \( r \) | Perturbation subspace dimension |
+| \( \mathbb{F}_q \) | Finite field of order \( q \) |
+| \( X \) | Column vector \( (x_1, \dots, x_n)^\top \) |
+| \( M \) | Plaintext block in \( \mathbb{F}_q^n \) |
+| \( C \) | Ciphertext block in \( \mathbb{F}_q^n \) |
 
-Recommended parameter regime
+### Recommended Parameter Regime
 
-Parameter Value Rationale
-n 6 Minimum viable for 128-bit classical security target
-q 2^31 or 31-bit prime Required for MinRank resistance
-d 5 Balances expressiveness and attack surface
-r 5 Perturbation dimension for linearization resistance
+| Parameter | Value | Rationale |
+|-----------|-------|---------|
+| \( n \) | 6 | Minimum viable for 128-bit classical security target |
+| \( q \) | \( 2^{31} \) or 31-bit prime | Required for MinRank resistance |
+| \( d \) | 5 | Balances expressiveness and attack surface |
+| \( r \) | 5 | Perturbation dimension for linearization resistance |
 
-The 4-dimensional construction is retained in §3 for expositional clarity but is not secure at practical field sizes. See §6.3.
+The 4-dimensional construction is retained in §3 for expositional clarity but is **not secure** at practical field sizes. See §6.3.
 
 ---
 
-2. Cryptographic Primitives
+## 2. Cryptographic Primitives
 
-2.1 Secret Tame Map
+### 2.1 Secret Tame Map
 
 The secret map G: F_q^n → F_q^n is a strictly lower-triangular polynomial automorphism:
 
