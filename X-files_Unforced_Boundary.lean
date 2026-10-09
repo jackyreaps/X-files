@@ -8,10 +8,9 @@ public import Mathlib
 **Status: proved (definitions restated; the energy statements are conditional on
 an energy balance supplied as a hypothesis).**
 
-The X-files repository, <https://github.com/jackyreaps/X-files>, has a short Lean
-file `X-files_Unforced_Boundary.lean` whose `lasls_viscous_arrest_isolated`
-concludes `True` (vacuous). This module restates it for the current Mathlib and
-adds content. Nothing is copied.
+The X-files repository has a short Lean file `X-files_Unforced_Boundary.lean`
+whose `lasls_viscous_arrest_isolated` concludes `True` (vacuous). This module
+restates it for the current Mathlib and adds content. Nothing is copied.
 
 * `IsStrictlyUnforced`, `forced_fails_unforced`: as in the repository.
 * `unforced_energy_antitone`: given an energy balance
