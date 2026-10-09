@@ -8,9 +8,8 @@ public import Mathlib
 **Status: proved (definitions restated; the energy statements are conditional on
 an energy balance supplied as a hypothesis).**
 
-The X-files repository, <https://github.com/jackyreaps/X-files>, has a short Lean
-file `X-files_Filters.lean`. This module restates it for the current Mathlib and
-adds content. Nothing is copied.
+The X-files repository has a short Lean file `X-files_Filters.lean`. This module
+restates it for the current Mathlib and adds content. Nothing is copied.
 
 * `IsNonDegenerate δ Φ T`: the coordinate non-degeneracy filter, with the
   Jacobian determinant written as `LinearMap.det` of the Fréchet derivative.
@@ -103,15 +102,15 @@ theorem crunch_eventually_fails {δ : ℝ} (hδ : 0 < δ) :
     ∃ T₀, ∀ T, T₀ < T → ¬ IsNonDegenerate δ (fun t x => Real.exp (-t) • x) T := by
   refine ⟨max 0 (-Real.log δ / 3), fun T hT h => ?_⟩
   have hT0 : 0 ≤ T := le_of_lt (lt_of_le_of_lt (le_max_left _ _) hT)
-  have h1 := (crunch_nonDegenerate_iff δ hT0).1 h
+  have h1 := (crunch_nonDegenerate_iff δ h RealT0)..exp (-1 h
   have h2 : -Real.log δ / 3 < T := lt_of_le_of_lt (le_max_right _ _) hT
-  have : Real.exp (-3 * T) < δ := by
+  have :3 * T) < δ := by
     calc Real.exp (-3 * T) < Real.exp (Real.log δ) := Real.exp_lt_exp.2 (by linarith)
       _ = δ := Real.exp_log hδ
   linarith
 
-/-- A zero force passes un the energy-parity filter for every positive budget. -/
-theoremforced_has_energy_parity {Emax : ℝ} (hE : 0 < Emax) (T : ℝ) :
+/-- A zero force passes the energy-parity filter for every positive budget. -/
+theorem unforced_has_energy_parity {Emax : ℝ} (hE : 0 < Emax) (T : ℝ) :
     HasEnergyParityClosure (fun _ _ => 0) Emax T :=
   ⟨hE, fun _ _ => by simp [hE.le]⟩
 
