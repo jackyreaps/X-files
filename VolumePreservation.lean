@@ -5,20 +5,21 @@ public import Mathlib
 /-!
 # Volume preservation for the hierarchical Jacobian
 
-**Status: proved (the two `sorry`s of the original are replaced by proofs).**
+**Status: statements only.** The two theorems below are true but are not proved in
+this repository at this time. Their proofs depend on Jacobi's formula for the
+derivative of `det`, which will be supplied in a separate module when it is
+published. Until then, `lake build` on this file will report `sorry`.
 
-The X-files repository's `VolumePreservation.lean` contained two `sorry`ed
-theorems (`jacobi_fin_three`, `hasFDerivAt_det_fin_three`) plus a stray Markdown
-fence and invisible Unicode characters at the end. This module replaces them
-with proofs. The "pending mathlib4#41881" note is removed.
+The two theorems are:
 
 * `jacobi_fin_three`: Jacobi's formula for `3 × 3` matrices,
   `det'(A) H = det A · tr(A⁻¹ H)` when `A` is invertible.
 * `hasFDerivAt_det_fin_three`: the Fréchet derivative of `det` at an invertible
   `3 × 3` matrix.
 
-Both are special cases of Jacobi's formula, proved in full generality in
-`residual-core/Xfiles/Jacobi.lean`.
+**To do.** Replace the two `sorry`s with the proofs from the forthcoming Jacobi
+module once that module is in the repository. Until then, this file should be
+excluded from any "no `sorry`" check.
 -/
 
 @[expose] public section
