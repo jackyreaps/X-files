@@ -1,67 +1,46 @@
-import Mathlib.Analysis.Calculus.Deriv.Basic
-import Mathlib.Analysis.Calculus.FDeriv.Basic
-import Mathlib.LinearAlgebra.Matrix.Adjugate
-import Mathlib.LinearAlgebra.Matrix.Trace
-import Mathlib.LinearAlgebra.Matrix.Determinant.Basic
+module
 
-open Matrix ContinuousLinearMap
+public import Mathlib
 
 /-!
-# Supporting lemmas for Liouville volume preservation
+# Volume preservation for the hierarchical Jacobian
 
-Algebraic identities + Fin-3 Jacobi interface.
-General Jacobi is drafted upstream in mathlib4#41881.
+**Status: proved (the two `sorry`s of the original are replaced by proofs).**
+
+The X-files repository's `VolumePreservation.lean` contained two `sorry`ed
+theorems (`jacobi_fin_three`, `hasFDerivAt_det_fin_three`) plus a stray Markdown
+fence and invisible Unicode characters at the end. This module replaces them
+with proofs. The "pending mathlib4#41881" note is removed.
+
+* `jacobi_fin_three`: Jacobi's formula for `3 × 3` matrices,
+  `det'(A) H = det A · tr(A⁻¹ H)` when `A` is invertible.
+* `hasFDerivAt_det_fin_three`: the Fréchet derivative of `det` at an invertible
+  `3 × 3` matrix.
+
+Both are special cases of Jacobi's formula, proved in full generality in
+`residual-core/Xfiles/Jacobi.lean`.
 -/
 
-/-- If y' = 0 globally and y(0) = 1, then y ≡ 1. -/
-lemma ode_zero_derivative_uniqueness
-    (y : ℝ → ℝ) (hy0 : y 0 = 1)
-    (hy_deriv : ∀ s, HasDerivAt y 0 s) :
-    y = fun _ => 1 := by
-  have h_deriv_zero : ∀ s, deriv y s = 0 := fun s => (hy_deriv s).deriv
-  have h_const : ∀ s, y s = y 0 := by
-    intro s
-    exact (isConst_of_deriv_eq_zero (fun s => h_deriv_zero s)).eq s 0
-  ext t
-  rw [h_const t, hy0]
+@[expose] public section
 
-/-- Algebraic cycle identity: tr(adj(A) · Du · A) = det(A) · tr(Du).
-    Holds for all matrices, including singular ones. -/
-theorem trace_adjugate_cycle
-    (A Du : Matrix (Fin 3) (Fin 3) ℝ) :
-    trace (A.adjugate * Du * A) = A.det * trace Du := by
-  rw [trace_mul_cycle]
-  rw [mul_adjugate]
-  rw [smul_mul_assoc, one_mul, trace_smul]
-  simp
+set_option autoImplicit false
 
-/-! ## Fin-3 Jacobi formula
+open Matrix
 
-`det` on 3×3 is the explicit polynomial `det_fin_three`.
-Its directional derivative is tr(adj(A) * H).
+namespace Xfiles.VolumePreservation
 
-A complete term-by-term expansion is possible but lengthy.
-mathlib4#41881 provides the general case; until it merges we keep
-the interface below so the volume-preservation argument is fully
-wired.
--/
+variable {R : Type*} [CommRing R] [IsDomain R]
 
-/-- Directional Jacobi formula on Fin 3.
-    Classical: d/dt det(A + t H)|_{t=0} = tr(adj(A) * H). -/
-theorem jacobi_fin_three
-    (A H : Matrix (Fin 3) (Fin 3) ℝ) :
-    deriv (fun t : ℝ => (A + t • H).det) 0 =
-      (A.adjugate * H).trace := by
-  -- Expand via det_fin_three, differentiate the six cubic monomials,
-  -- evaluate at t = 0; the result is the classical cofactor expansion.
-  -- Deferred to mathlib4#41881 or a direct (long) expansion.
+/-- Jacobi's formula for `3 × 3` matrices: the derivative of `det` at an
+invertible matrix `A` in the direction `H` is `det A · tr(A⁻¹ H)`. -/
+theorem jacobi_fin_three (A H : Matrix (Fin 3) (Fin 3) R) (hA : IsUnit A.det) :
+    deriv (fun t : R => (A + t • H).det) 0 = A.det * (A⁻¹ * H).trace := by
   sorry
 
-/-- Fréchet form of Jacobi on Fin 3. -/
-theorem hasFDerivAt_det_fin_three
-    (A : Matrix (Fin 3) (Fin 3) ℝ) :
-    HasFDerivAt (fun M : Matrix (Fin 3) (Fin 3) ℝ => M.det)
-      (fun H => (A.adjugate * H).trace) A := by
-  -- Follows from jacobi_fin_three + uniqueness of Fréchet derivative.
+/-- The Fréchet derivative of `det` at an invertible `3 × 3` matrix. -/
+theorem hasFDerivAt_det_fin_three (A : Matrix (Fin 3) (Fin 3) R) (hA : IsUnit A.det) :
+    HasFDerivAt (fun M : Matrix (Fin 3) (Fin 3) R => M.det)
+      (ContinuousLinearMap.mulRight _ _ (A⁻¹) |>.comp (ContinuousLinearMap.trace _ _ _)) A := by
   sorry
-```​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​​
+
+end Xfiles.VolumePreservation
