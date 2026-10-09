@@ -1,69 +1,90 @@
-import Mathlib.Analysis.Calculus.Deriv.Basic
-import Mathlib.Topology.MetricSpace.Basic
-import Mathlib.Analysis.Normed.Group.Basic
-import Mathlib.Analysis.Normed.Module.Basic
+module
+
+public import Mathlib
 
 /-!
-# X-files Boundary Criterion — Strictly Unforced Fluid Systems
+# X-files unforced boundary
 
-The classical Millennium Prize formulation for Navier–Stokes regularity concerns
-**unforced** solutions (external force identically zero).  Any construction that
-relies on a non-zero smooth force to sustain a singularity lies outside that
-formulation.
+**Status: proved (definitions restated; the energy statements are conditional on
+an energy balance supplied as a hypothesis).**
 
-This file supplies the precise Lean predicate and a minimal evaluation theorem
-that any forced finite-time blow-up fails the unforced criterion.
+The X-files repository, <https://github.com/jackyreaps/X-files>, has a short Lean
+file `X-files_Unforced_Boundary.lean` whose `lasls_viscous_arrest_isolated`
+concludes `True` (vacuous). This module restates it for the current Mathlib and
+adds content. Nothing is copied.
+
+* `IsStrictlyUnforced`, `forced_fails_unforced`: as in the repository.
+* `unforced_energy_antitone`: given an energy balance
+  `E′(t) = −ν D(t) + ⟨f(t), u(t)⟩` with dissipation `D ≥ 0` and `ν ≥ 0`, a strictly
+  unforced system has non-increasing energy.
+* `viscous_decay`: with a Poincaré-type bound `κ E ≤ D` and `κ > 0`, the energy
+  decays exponentially: `E(t) ≤ E(0) e^{−νκt}` for `t ≥ 0`.
+
+The energy balance itself (that Navier–Stokes solutions satisfy it) is a
+hypothesis here, as it is in the repository; it is not derived from a PDE.
+
+**Note.** The filter content here is independent of the trace identity in
+`X-files_Minimal_Closure_NS.md`; that identity is not used.
 -/
 
-variable {V : Type*} [NormedAddCommGroup V] [NormedSpace ℝ V]
+@[expose] public section
 
-/--
-**Strictly unforced** means the external force vanishes identically for all time.
-This is the boundary condition required by the classical unforced Millennium
-statement (Clay problem, statements (A)–(B)).
--/
-def IsStrictlyUnforced (f : ℝ → V) : Prop :=
-  ∀ t, f t = 0
+set_option autoImplicit false
 
-/--
-Any solution that is driven by a non-zero force fails the unforced criterion.
-This is the formal filter used to classify forced constructions
-(e.g. the OpenAI “spaghetti-vortex” singularity of 8 Sep 2026) as outside the
-classical unforced regularity question.
--/
-theorem forced_fails_unforced
-    (f : ℝ → V) (t₀ : ℝ) (hf : f t₀ ≠ 0) :
-    ¬ IsStrictlyUnforced f := by
-  intro h
-  exact hf (h t₀)
+open Set MeasureTheory
 
-/--
-Viscous arrest under strict isolation.
+namespace Xfiles.Unforced
 
-If the force is identically zero and viscosity is positive, the classical
-energy inequality implies that the kinetic energy is non-increasing.
-(The full PDE argument is left as a hypothesis; the filter itself is the
-unforced condition.)
--/
-theorem lasls_viscous_arrest_isolated
-    (u : ℝ → V) (ν : ℝ) (f : ℝ → V)
-    (h_unforced : IsStrictlyUnforced f)
-    (h_viscous : 0 < ν) :
-    -- Placeholder for the energy-dissipation statement.
-    -- Concrete form: d/dt (½‖u(t)‖²) + ν‖∇u(t)‖² ≤ 0
-    -- once the Navier–Stokes equation is formalised.
-    True := by
-  trivial
+variable {V : Type*} [NormedAddCommGroup V]
 
-/--
-Combined audit predicate for a claimed singularity:
+/-- Strictly unforced: the external force vanishes for all time. -/
+def IsStrictlyUnforced (f : ℝ → V) : Prop := ∀ t, f t = 0
 
-* the force must be strictly unforced, **and**
-* the analytic filters of `X-files_Filters.lean` must hold.
+/-- A force that is nonzero at one time fails the unforced criterion. -/
+theorem forced_fails_unforced (f : ℝ → V) (t₀ : ℝ) (hf : f t₀ ≠ 0) :
+    ¬ IsStrictlyUnforced f := fun h => hf (h t₀)
 
-A construction that fails either test is not a counter-example to the
-classical unforced Millennium problem.
--/
-def AdmissibleUnforcedSingularity
-    (f : ℝ → V) : Prop :=
-  IsStrictlyUnforced f
+variable [InnerProductSpace ℝ V]
+
+/-- The energy balance `E′(t) = −ν D(t) + ⟨f(t), u(t)⟩` (dissipation plus the power of
+the force), taken as a hypothesis. -/
+def EnergyBalance (E D : ℝ → ℝ) (ν : ℝ) (f u : ℝ → V) : Prop :=
+  ∀ t, HasDerivAt E (-(ν * D t) + inner ℝ (f t) (u t)) t
+
+/-- **Unforced energy antitone.** Under the energy balance, an unforced system with
+nonnegative viscosity and dissipation has non-increasing energy. -/
+theorem unforced_energy_antitone {E D : ℝ → ℝ} {ν : ℝ} {f u : ℝ → V}
+    (hbal : EnergyBalance E D ν f u) (hf : IsStrictlyUnforced f) (hν : 0 ≤ ν)
+    (hD : ∀ t, 0 ≤ D t) : Antitone E := by
+  have hd : ∀ t, HasDerivAt E (-(ν * D t)) t := fun t => by simpa [hf t] using hbal t
+  exact antitone_of_deriv_nonpos (fun t => (hd t).differentiableAt)
+    (fun t => by rw [(hd t).deriv]; nlinarith [hD t])
+
+/-- **Exponential decay.** With a Poincaré-type bound `κ E ≤ D` and `κ > 0`, an
+unforced system's energy satisfies `E(t) ≤ E(0) e^{−νκt}` for `t ≥ 0`. -/
+theorem viscous_decay {E D : ℝ → ℝ} {ν κ : ℝ} {f u : ℝ → V}
+    (hbal : EnergyBalance E D ν f u) (hf : IsStrictlyUnforced f) (hν : 0 ≤ ν)
+    (hκ : 0 < κ) (hP : ∀ t, κ * E t ≤ D t) {t : ℝ} (ht : 0 ≤ t) :
+    E t ≤ E 0 * Real.exp (-(ν * κ) * t) := by
+  have hd : ∀ t, HasDerivAt E (-(ν * D t)) t := fun t => by simpa [hf t] using hbal t
+  set G : ℝ → ℝ := fun s => E s * Real.exp (ν * κ * s)
+  have hG : ∀ s, HasDerivAt G (-(ν * D s) * Real.exp (ν * κ * s) +
+      E s * (Real.exp (ν * κ * s) * (ν * κ))) s := by
+    intro s
+    have h2 : HasDerivAt (fun s => Real.exp (ν * κ * s)) (Real.exp (ν * κ * s) * (ν * κ)) s := by
+      simpa using ((hasDerivAt_id s).const_mul (ν * κ)).exp
+    exact (hd s).mul h2
+  have hanti : Antitone G := antitone_of_deriv_nonpos (fun s => (hG s).differentiableAt)
+    (fun s => by
+      rw [(hG s).deriv]
+      have he := Real.exp_pos (ν * κ * s)
+      have : ν * (κ * E s) ≤ ν * D s := mul_le_mul_of_nonneg_left (hP s) hν
+      nlinarith)
+  have h0 := hanti ht
+  simp only [G, mul_zero, Real.exp_zero, mul_one] at h0
+  have : E t = E t * Real.exp (ν * κ * t) * Real.exp (-(ν * κ) * t) := by
+    rw [mul_assoc, ← Real.exp_add]; ring_nf; simp
+  rw [this]
+  exact mul_le_mul_of_nonneg_right h0 (Real.exp_pos _).le
+
+end Xfiles.Unforced
