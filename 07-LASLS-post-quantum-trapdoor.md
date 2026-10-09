@@ -23,7 +23,7 @@ This document specifies LASLS (Lower-Anchor Skew-Linear Stacking), a public-key 
 
 **Security posture.** Security rests on the estimated hardness of a specific MinRank instance combined with resistance to linearization equations under perturbation. No security proof exists. See §6 for the full caveats.
 
-**Correction posture (October 2026).** Two claims in the original refined-anchor wording were false as stated: that an arbitrary first-row refinement preserves invertibility (back-substitution), and that `det J_G = 1` holds for an arbitrary first row. Both are refuted by Lean theorems over any commutative ring (hence over every finite field). The repaired form in §2.1 restores both properties. See §2.1–§2.3, §4.4, §5, and the archive note `random/LASLS-correction-archive.md`.
+**Correction posture (October 2026).** Two claims in the original refined-anchor wording were false as stated: that an arbitrary first-row refinement preserves invertibility (back-substitution), and that `det J_G = 1` holds for an arbitrary first row. Both are refuted by Lean theorems over any commutative ring (hence over every finite field). The repaired form in §2.1 restores both properties. See §2.1–§2.3, §4.4, §5.
 
 ---
 
