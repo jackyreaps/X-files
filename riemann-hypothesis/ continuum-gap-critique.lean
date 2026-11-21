@@ -17,6 +17,12 @@ import Mathlib.Analysis.Complex.Basic
   Known examples (Davenport–Heilbronn and analogues) demonstrate
   that functional equation + certain analytic properties do not
   force all non-trivial zeros onto the critical line.
+
+  Archive entry points (Alpöge, certified 2026-11-21):
+    Formalism.VW.rh_of_every
+    UpperTheory.FinalTheorems.everyCharacter
+    slopeInequality_of / TopG
+    zeroFree_of_rpow_window / zeroFreeAll_of_topG
 -/
 
 open Complex
@@ -26,15 +32,17 @@ namespace RH.MethodCritique
 /-- Mathlib’s continuum statement of the Riemann Hypothesis. -/
 def RH : Prop := RiemannHypothesis
 
-/-- 
+/--
   Abstract “multiplicity” extracted from a finite or polynomially-long
   chain of discrete theta lifts / automorphic correspondences.
+  Corresponds to the mass that ultimately feeds `rh_of_every`.
 -/
 opaque ThetaLiftMultiplicity (X : ℝ) : Prop
 
-/-- 
+/--
   Classical analytic data obtainable from the functional equation,
   Poisson summation, and the approximate functional equation.
+  Strength is known not to force RH (Davenport–Heilbronn regime).
 -/
 opaque ClassicalAnalyticData (X : ℝ) : Prop
 
@@ -81,5 +89,18 @@ theorem continuum_gap_schematic
   intro h
   exact pure_discrete_multiplicity_does_not_force_RH
     (fun X hX => h_mult_classical X hX) h
+
+/--
+  Named archive interface (documentation only).
+  When the multiplicity predicate is extracted from the certified
+  archive, substitute it for `ThetaLiftMultiplicity` and discharge
+  the comparison against `ClassicalAnalyticData`.
+-/
+structure ArchiveInterface where
+  rh_of_every : Prop
+  everyCharacter : Prop
+  slopeInequality_of : Prop
+  TopG : Prop
+  zeroFreeAll_of_topG : Prop
 
 end RH.MethodCritique
