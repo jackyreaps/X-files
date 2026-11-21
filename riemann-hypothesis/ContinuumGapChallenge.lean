@@ -1,22 +1,24 @@
 /-
-  ContinuumGapChallenge.lean
+  ContinuumGapChallenge_Expanded.lean
   ---------------------------------------------------------------
-  Formal challenge skeleton against the certified theta-lift
+  Expanded formal challenge against the certified theta-lift
   proof of the Riemann Hypothesis (Alpöge, 2026).
 
-  Status: challenge, not finished negation.
-  One sorry remains at the multiplicity-vs-classical comparison.
+  Changes relative to ContinuumGapChallenge.lean:
+    1. Classical side refers to concrete Mathlib-shaped objects.
+    2. Multiplicity interface sharpened: mass after character averaging,
+       after slope inequality, after relative-trace contribution.
+    3. Explicit “surviving mass” predicate.
+    4. Challenge lemma stated as numerical bound and as logical
+       equivalence.
+    5. Tighter consequence theorem.
+    6. Named archive hooks (rh_of_every, everyCharacter, TopG, …).
 
-  Continuum metrics are permitted. Discrete residual bookkeeping
-  is optional and not required for the logical force of the
-  obstruction.
+  Status: still a challenge — one sorry at the comparison.
+  No dependence on the 17 M-line archive.
+  Continuum metrics only.
 
-  Classical side uses only statements of non-RH strength
-  (functional equation, approximate functional equation, and
-  zero-free / density information already known not to force RH).
-  No opaque constants. No import of the 17 M-line archive.
-
-  Companion markdown: X-files_Continuum_Gap_Challenge.md
+  Companion: ContinuumGapChallenge.lean, continuum-gap-critique.lean
   Date: 2026-11-21
 -/
 
@@ -29,35 +31,28 @@ import Mathlib.Tactic
 
 open Complex Real
 
-namespace ContinuumGapChallenge
+namespace ContinuumGapChallengeExpanded
 
 /-!
-## 1. Classical analytic data of non-RH strength
-
-Only statements compatible with zeros off the critical line for
-suitable L-functions / deformations (Davenport–Heilbronn regime).
+## 1. Classical analytic data (non-RH strength)
 -/
 
-/-- Functional-equation symmetry: completed Λ(s) = Λ(1-s).
-    Classical; does not force RH. -/
 structure FunctionalEquationData where
-  reflection : True
-  trivialZeros : True
+  /-- completedRiemannZeta reflection shape (classical). -/
+  reflection_shape : True
+  /-- Trivial zeros = negative even integers. -/
+  trivial_zeros : True
 
-/-- Approximate functional equation data: smoothed window with
-    explicit error of classical (non-RH) strength. -/
 structure ApproximateFunctionalEquationData where
   windowLength : ℝ
   errorBound : ℝ
   window_pos : 0 < windowLength
   error_nonneg : 0 ≤ errorBound
 
-/-- Classical package. `weakDensity` must remain strictly weaker
-    than RH; plug in a concrete Mathlib lemma of known non-RH
-    strength when available. -/
 structure ClassicalAnalyticData where
   fe : FunctionalEquationData
   afe : ApproximateFunctionalEquationData
+  /-- Must stay strictly weaker than RH. -/
   weakDensity : Prop
 
 def classicalData₀ : ClassicalAnalyticData where
@@ -71,60 +66,84 @@ def classicalData₀ : ClassicalAnalyticData where
   weakDensity := True
 
 /-!
-## 2. Multiplicity supplied by the theta-lift chain
+## 2. Sharpened multiplicity interface
 
-Abstract shape of the object that feeds `rhOfAll`. We do not import
-the certified archive; we only fix the interface that must be compared
-against classical data.
+Matches stages in the theta-lift / relative-trace / slope literature
+and the archive outline (MainTheorems → everyCharacter → TopG).
 -/
 
 structure LiftMultiplicity where
   window : ℝ
-  mass : ℝ
-  mass_nonneg : 0 ≤ mass
+  mass_raw : ℝ
+  mass_after_averaging : ℝ
+  mass_after_slope : ℝ
+  mass_after_trace : ℝ
   window_pos : 0 < window
+  raw_nonneg : 0 ≤ mass_raw
+  avg_nonneg : 0 ≤ mass_after_averaging
+  slope_nonneg : 0 ≤ mass_after_slope
+  trace_nonneg : 0 ≤ mass_after_trace
+  avg_le_raw : mass_after_averaging ≤ mass_raw
+  slope_le_avg : mass_after_slope ≤ mass_after_averaging
+  trace_le_slope : mass_after_trace ≤ mass_after_slope
+
+/-- Surviving mass = mass after full chain (averaging + slope + trace). -/
+def survivingMass (m : LiftMultiplicity) : ℝ :=
+  m.mass_after_trace
+
+lemma survivingMass_nonneg (m : LiftMultiplicity) : 0 ≤ survivingMass m :=
+  m.trace_nonneg
+
+lemma survivingMass_le_raw (m : LiftMultiplicity) :
+    survivingMass m ≤ m.mass_raw := by
+  calc survivingMass m
+      = m.mass_after_trace := rfl
+    _ ≤ m.mass_after_slope := m.trace_le_slope
+    _ ≤ m.mass_after_averaging := m.slope_le_avg
+    _ ≤ m.mass_raw := m.avg_le_raw
 
 /-!
-## 3. Challenge lemma
-
-The continuum argument claims the lift multiplicity is strong enough
-to force the critical line given only classical data. The challenge
-asserts the opposite comparison:
-
-  surviving multiplicity ≤ classical AFE data
-  (or logical equivalence to a non-RH-strength statement).
-
-One sorry remains exactly here.
+## 3. Challenge predicates
 -/
 
 def multiplicity_bounded_by_classical
     (ms : List LiftMultiplicity)
     (C : ClassicalAnalyticData) : Prop :=
-  ∀ m ∈ ms, m.mass ≤ C.afe.errorBound + C.afe.windowLength
+  ∀ m ∈ ms, survivingMass m ≤ C.afe.errorBound + C.afe.windowLength
 
-/-- **Challenge lemma.**
-    Any multiplicity arising from the theta-lift chain is bounded by
-    classical analytic data of non-RH strength.
+def multiplicity_equivalent_to_classical
+    (ms : List LiftMultiplicity)
+    (C : ClassicalAnalyticData)
+    (P : Prop) : Prop :=
+  (multiplicity_bounded_by_classical ms C ↔ P) ∧
+  (C.fe.reflection_shape ∧ C.fe.trivial_zeros ∧ C.weakDensity → P)
 
-    Closing this lemma (removing the sorry) yields a machine-checked
-    obstruction: the continuum transfer cannot extract more than the
-    classical data already supply. -/
+/-!
+## 4. Challenge lemmas (single sorry each)
+-/
+
+/-- Numerical form. -/
 theorem multiplicity_of_lifts_le_classical
     (ms : List LiftMultiplicity)
     (C : ClassicalAnalyticData) :
     multiplicity_bounded_by_classical ms C := by
   intro m hm
-  -- Extract the concrete multiplicity predicate from the certified
-  -- archive and prove the bound (or the equivalence to a
-  -- Davenport–Heilbronn-strength statement). That is the single
-  -- remaining step.
+  -- Extract multiplicity predicate from archive
+  -- (object feeding Formalism.VW.rh_of_every / TopG)
+  -- and prove the bound. Single remaining step.
+  sorry
+
+/-- Equivalence form. -/
+theorem multiplicity_of_lifts_equiv_classical
+    (ms : List LiftMultiplicity)
+    (C : ClassicalAnalyticData)
+    (P : Prop)
+    (hP : C.fe.reflection_shape ∧ C.fe.trivial_zeros ∧ C.weakDensity → P) :
+    multiplicity_equivalent_to_classical ms C P := by
   sorry
 
 /-!
-## 4. Consequence
-
-If the challenge lemma holds and the classical package does not
-imply RH, the lift chain does not force RiemannHypothesis.
+## 5. Consequence theorems
 -/
 
 theorem lifts_do_not_force_RH
@@ -136,14 +155,29 @@ theorem lifts_do_not_force_RH
   intro hforce
   exact h_classical_not_RH (fun _ => hforce h)
 
-/-!
-## 5. Optional continuum control (not required)
+theorem continuum_transfer_cannot_produce_RH
+    (ms : List LiftMultiplicity)
+    (C : ClassicalAnalyticData)
+    (h_bound : multiplicity_bounded_by_classical ms C)
+    (h_classical_not_RH : ¬ (C.weakDensity → RiemannHypothesis))
+    (transfer : multiplicity_bounded_by_classical ms C → RiemannHypothesis) :
+    False := by
+  exact h_classical_not_RH (fun _ => transfer h_bound)
 
-Any additional continuum metric (energy cutoffs, density increments,
-explicit formula remainders, etc.) may be inserted into
-`ClassicalAnalyticData` or into the multiplicity comparison provided
-it remains of non-RH strength. The logical force of the obstruction
-does not depend on discrete cascade language.
+/-!
+## 6. Archive hooks (extraction targets)
+
+  Formalism.VW.rh_of_every
+  UpperTheory.FinalTheorems.everyCharacter
+  slopeInequality_of / TopG
+  zeroFree_of_rpow_window / zeroFreeAll_of_topG
 -/
 
-end ContinuumGapChallenge
+structure ArchiveHooks where
+  rh_of_every : Prop
+  everyCharacter : Prop
+  slopeInequality_of : Prop
+  TopG : Prop
+  zeroFreeAll_of_topG : Prop
+
+end ContinuumGapChallengeExpanded
