@@ -71,8 +71,8 @@ Closing this lemma in Lean yields a machine-checked obstruction: the lift chain 
 
 **Scope note (23 November 2026).** The challenge lemma splits into two cases that must not be conflated:
 
-- **General (non-vacuous) case:** **open and load-bearing** for the theta layering. This is `challenge_lemma_theta_layering` in `ContinuumGapChallenge.lean` (one `sorry`). It cannot be discharged from the bare interface — see §5c.
-- **Live-path (vacuous) case:** **closed**, no `sorry`, in `ContinuumGapChallenge.lean` (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`) and, independently, in `FormalObstruction.lean`. This is the case actually found on the live dependency path of the certified archive.
+- **General (non-vacuous) case:** **open and load-bearing** for the theta layering. This is `challenge_lemma_theta_layering` in `ThetaConstraints.lean` (one `sorry`). It cannot be discharged from the bare interface — see §5c.
+- **Live-path (vacuous) case:** **closed**, no `sorry`, in `ContinuumGapChallenge.lean` (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`), in `ThetaConstraints.lean` (`vacuous_theta_bounded`), and independently in `FormalObstruction.lean`. This is the case actually found on the live dependency path of the certified archive.
 
 The vacuous closure does **not** discharge the general obligation. If `anyGeometry` is replaced by a non-trivial predicate, the general case is active.
 
@@ -96,7 +96,7 @@ Confirmed facts (22–23 November 2026):
 - A non-vacuous alternative (`geoOf`) exists in the same file but is **not** used on this path.
 - In the `OAt` bundle, the content-bearing field is `lam`; the `geo` field is populated only by the constant-`True` predicate and transported by `GeoCl`.
 
-Consequence for the live path: the surviving multiplicity is identically `0`, so the challenge bound holds definitionally. This is machine-checked with no `sorry` in `multiplicity_of_vacuous_le_classical` and `challenge_consequence_live_path`, and independently in `FormalObstruction.lean`.
+Consequence for the live path: the surviving multiplicity is identically `0`, so the challenge bound holds definitionally. This is machine-checked with no `sorry` in `multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`, and `vacuous_theta_bounded`, and independently in `FormalObstruction.lean`.
 
 **Boundary.** This does not close the general case. It shows that the current archive’s live path carries zero surviving mass; it does not show that the theta layering, when the geometry is non-trivial, constrains multiplicities sufficiently. That is the load-bearing obligation of §5c.
 
@@ -117,21 +117,40 @@ theorem general_bound_fails_unrestricted
 
 This is **closed, no `sorry`**, and it is the reason the theta layering is load-bearing. Without theta-specific constraints on multiplicities — slope inequality, relative-trace estimate, character averaging bounds — the surviving mass is not controlled by classical data at all.
 
-The open obligation is therefore:
+The theta-sharpened open obligation is stated in `ThetaConstraints.lean`:
 
 ```lean
+structure ThetaLiftMultiplicity extends LiftMultiplicity where
+  slope_bound_holds    : Prop
+  relative_trace_holds : Prop
+  character_avg_holds  : Prop
+
 theorem challenge_lemma_theta_layering
-    (ms : List LiftMultiplicity) (C : ClassicalAnalyticData) :
-    multiplicity_bounded_by_classical ms C := by
+    (ms : List ThetaLiftMultiplicity) (C : ClassicalAnalyticData) :
+    thetaLiftMultiplicity_bounded ms C := by
   sorry
 ```
+
+The three `Prop` fields are placeholders. Instantiating them with the archive’s actual predicates from the theta-lift chain is the remaining extraction step.
 
 Two possible outcomes determine the force of the certified argument:
 
 - **(a)** The theta layering supplies the needed constraints, the bound holds on the restricted class of multiplicities that actually arise, and the theta-lift argument has force. RH then follows from classical data plus theta lifts.
 - **(b)** No theta-specific restriction suffices. Then the theta layering provides no surviving mass beyond classical data, and the obstruction stands. The vacuous closure of §5b is then the special case that applies to the current archive.
 
-The challenge is to decide (a) vs (b) in Lean, and — if (b) — to locate the theta-lift step where the restriction was assumed.
+`DisproofObligation` in `ThetaConstraints.lean` names the exact shape of a refutation in case (b):
+
+```lean
+def DisproofObligation (C : ClassicalAnalyticData) : Prop :=
+  ∃ m : ThetaLiftMultiplicity,
+    m.slope_bound_holds ∧
+    m.relative_trace_holds ∧
+    m.character_avg_holds ∧
+    survivingMass m.toLiftMultiplicity
+      > C.afe.errorBound + C.afe.windowLength
+```
+
+If `DisproofObligation C` holds for a witness `m`, then `disproof_obligation_refutes` (closed, no `sorry`) refutes `challenge_lemma_theta_layering` on the singleton list `[m]`.
 
 ---
 
@@ -145,7 +164,7 @@ $$
 
 is irrelevant on the live path (which is vacuous), and the theta-lift transfer cannot prove RH from the lift multiplicity alone on any non-vacuous path.
 
-For the vacuous case actually found on the live path, the consequence is already machine-checked (`challenge_consequence_live_path`, `FormalObstruction.lean`). For the general case it depends on the resolution of §5c.
+For the vacuous case actually found on the live path, the consequence is already machine-checked (`challenge_consequence_live_path`, `vacuous_theta_bounded`, `FormalObstruction.lean`). For the general case it depends on the resolution of §5c.
 
 ---
 
@@ -155,13 +174,13 @@ Three routes, in increasing strength:
 
 1. **Theta-specific restriction.** Extract the concrete constraints the theta-lift chain places on multiplicities (slope inequality, relative-trace estimate, character averaging), prove in Lean that on the restricted class the surviving mass is bounded by classical data, and identify the theta-lift step that supplies each constraint. This closes `challenge_lemma_theta_layering` on the restricted class and decides outcome (a).
 
-2. **Counter-model.** Produce an explicit formal object that satisfies every intermediate theta-lift lemma yet possesses a zero off the critical line (Davenport–Heilbronn style construction formalized against the same hypotheses). This decides outcome (b) and gives a machine-checked obstruction.
+2. **Counter-model.** Produce an explicit formal object that satisfies every intermediate theta-lift lemma yet possesses a zero off the critical line (Davenport–Heilbronn style construction formalized against the same hypotheses). This decides outcome (b) and gives a machine-checked obstruction via `disproof_obligation_refutes`.
 
 3. **Circularity.** Locate an unstated analytic hypothesis of RH strength that was smuggled into one of the “classical” inputs (an estimate that already encodes a zero-free region or density theorem strong enough for RH). This would also decide outcome (b), at the level of hypotheses.
 
 Route 1 is the practical first target: `general_bound_fails_unrestricted` already shows the bare interface is insufficient, so Route 1 is where the theta layering earns its name.
 
-**Progress (23 November 2026).** The live-path object has been extracted (`anyGeometry := fun _ _ _ => True`, 8 kernel-value edges below `riemannHypothesis`, commit `40e56bab`). The vacuous case is closed. `general_bound_fails_unrestricted` is closed. The open obligation is exactly `challenge_lemma_theta_layering`, and it is load-bearing: no closure of it means no force for the theta layering on non-vacuous paths.
+**Progress (23 November 2026).** The live-path object has been extracted (`anyGeometry := fun _ _ _ => True`, 8 kernel-value edges below `riemannHypothesis`, commit `40e56bab`). The vacuous case is closed (both in `ContinuumGapChallenge.lean` and in `ThetaConstraints.lean`). `general_bound_fails_unrestricted` is closed. `disproof_obligation_refutes` is closed. The open obligation is exactly `challenge_lemma_theta_layering` on the theta-sharpened class, which requires instantiating the three placeholder `Prop` fields from the archive.
 
 ---
 
@@ -190,19 +209,27 @@ The present challenge is the precise analytic counterpart of that filter for the
 
 ### 10. Lean skeleton
 
-A companion Lean file (`ContinuumGapChallenge.lean`) isolates the structures, the **closed** live-path case (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`), the **closed** demonstration that the bare interface is insufficient (`general_bound_fails_unrestricted`), and the **open and load-bearing** general lemma (`challenge_lemma_theta_layering`, one `sorry`). It imports only Mathlib, does not depend on the 17 M-line archive, and builds with:
+Three companion Lean files isolate the structures, the **closed** live-path case, the **closed** bare-interface insufficiency, and the **open and load-bearing** theta-sharpened general lemma.
+
+`ContinuumGapChallenge.lean`:
 
 ```bash
 lake build ContinuumGapChallenge
 ```
 
-A second companion, `FormalObstruction.lean`, realises the vacuous case independently and records the boundary that kernel acceptance of `RiemannHypothesis` is unaffected:
+`FormalObstruction.lean`:
 
 ```bash
 lake build FormalObstruction
 ```
 
-Closing `challenge_lemma_theta_layering` with a proof that uses only Mathlib plus the theta-specific constraints extracted from the archive completes the general obstruction target; deciding it false with a counter-model decides the obstruction in the opposite direction.
+`ThetaConstraints.lean` (sharpened obligation and `DisproofObligation`):
+
+```bash
+lake build ThetaConstraints
+```
+
+All three import only Mathlib and do not depend on the 17M-line archive. Closing `challenge_lemma_theta_layering` with a proof that uses only Mathlib plus the theta-specific constraints extracted from the archive completes the general obstruction target; deciding it false with a countermodel via `DisproofObligation` decides the obstruction in the opposite direction.
 
 ---
 
@@ -212,14 +239,17 @@ Closing `challenge_lemma_theta_layering` with a proof that uses only Mathlib plu
 |------|-------|
 | Statement match (Mathlib RH) | certified by Lean community |
 | Kernel acceptance | certified |
-| Live-path (vacuous) multiplicity bound | **closed** (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`, no `sorry`) |
+| Live-path (vacuous) multiplicity bound | **closed** (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`, `vacuous_theta_bounded`, no `sorry`) |
 | Bare interface insufficiency | **closed** (`general_bound_fails_unrestricted`, no `sorry`) |
-| General multiplicity bound (**load-bearing** for theta layering) | **open** (`challenge_lemma_theta_layering`, one `sorry`) |
+| Disproof witness refutation | **closed** (`disproof_obligation_refutes`, no `sorry`) |
+| Theta-sharpened general bound (**load-bearing**) | **open** (`ThetaConstraints.challenge_lemma_theta_layering`, one `sorry`; three placeholders not yet instantiated) |
 | Live-path dependency on `anyGeometry := fun _ _ _ => True` | **confirmed** (8 kernel-value edges below `riemannHypothesis`) |
+| Theta constraint extraction | **open** (requires deeper archive extraction) |
+| Countermodel deciding `DisproofObligation` | **not constructed** |
 | Load-bearing swap test (replace `anyGeometry`, rebuild) | **open** (compute-bound) |
 | Formal negation of the general proof | incomplete until `challenge_lemma_theta_layering` is closed (either direction) |
 
 This document records the obstruction target for the X-files repository. It does not claim that the certified archive is already broken. It states:
 
 - the **live-path obstruction is closed** (the actual archive’s geometry is vacuous, so surviving mass is `0` and the bound holds definitionally);
-- the **general obstruction is open and load-bearing** — `general_bound_fails_unrestricted` shows the bare interface cannot supply the bound, so the theta layering must supply theta-specific constraints, and `challenge_lemma_theta_layering` is the exact Lean statement that decides whether it does.
+- the **general obstruction is open and load-bearing** — `general_bound_fails_unrestricted` shows the bare interface cannot supply the bound, so the theta layering must supply theta-specific constraints, and `ThetaConstraints.challenge_lemma_theta_layering` is the exact Lean statement that decides whether it does.
