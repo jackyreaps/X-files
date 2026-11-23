@@ -10,15 +10,22 @@
   2. ThetaLiftMultiplicity: a LiftMultiplicity together with the
      three theta-specific constraints the archive invokes.
   3. The theta-sharpened challenge lemma — OPEN, one sorry.
-  4. DisproofObligation — the mechanical shape of a refutation.
+  4. DisproofObligation and CircularityObligation — the two
+     mechanical shapes of a refutation.
   5. Live-path (vacuous) instance — CLOSED, no sorry.
 
+  Live-path facts (from project notes, verified by the maintainer):
+  - 8-edge kernel path from riemannHypothesis to anyGeometry:
+    confirmed (LivePathExtraction.lean, mask 31 audits).
+  - OAt.geo is vestigial; the content-bearing field is lam.
+  - anyGeometry := fun _ _ _ => True on the live path.
+
   The three theta-specific constraint fields on ThetaLiftMultiplicity
-  are Prop-valued placeholders. To use this file against the archive,
-  they must be instantiated with the concrete predicates from the
-  theta-lift chain (slope inequality, relative-trace estimate,
-  character-averaging bound). Until then,
-  challenge_lemma_theta_layering remains an honest sorry.
+  are Prop-valued placeholders. They must be instantiated with the
+  archive's actual predicates (slope inequality, relative-trace
+  estimate, character-averaging bound) before
+  challenge_lemma_theta_layering can be decided. Until then it
+  remains an honest sorry.
 
   Does not import the 17M-line archive. Builds with only Mathlib.
   Date: 2026-11-23
@@ -68,6 +75,15 @@ structure LiftMultiplicity where
 
 def survivingMass (m : LiftMultiplicity) : ℝ := m.mass_after_trace
 
+lemma survivingMass_nonneg (m : LiftMultiplicity) : 0 ≤ survivingMass m :=
+  m.trace_nonneg
+
+lemma survivingMass_le_raw (m : LiftMultiplicity) : survivingMass m ≤ m.mass_raw := by
+  calc survivingMass m = m.mass_after_trace := rfl
+    _ ≤ m.mass_after_slope := m.trace_le_slope
+    _ ≤ m.mass_after_averaging := m.slope_le_avg
+    _ ≤ m.mass_raw := m.avg_le_raw
+
 /-! ## 2. Theta-lift multiplicities -/
 
 /-- A `LiftMultiplicity` together with the three theta-specific
@@ -95,26 +111,24 @@ def thetaLiftMultiplicity_bounded
 
 /-- **Open challenge lemma — theta-sharpened.**
 
-    This is the load-bearing obligation: on the class of
-    theta-lift multiplicities that the archive actually invokes,
-    the surviving mass is bounded by the classical package.
-
-    Cannot be discharged from the bare interface; requires the
-    three theta-specific constraints above to be instantiated with
-    the archive's actual predicates, and the bound proved on the
-    resulting restricted class. -/
+    On the class of theta-lift multiplicities that the archive
+    actually invokes, the surviving mass is bounded by the classical
+    package. Cannot be discharged from the bare interface: requires
+    the three theta-specific constraints above to be instantiated
+    with the archive's actual predicates, and the bound proved on
+    the resulting restricted class. -/
 theorem challenge_lemma_theta_layering
     (ms : List ThetaLiftMultiplicity) (C : ClassicalAnalyticData) :
     thetaLiftMultiplicity_bounded ms C := by
   sorry
 
-/-! ## 4. Disproof obligation -/
+/-! ## 4. The two refutation routes -/
 
-/-- A single violating theta-lift multiplicity, with all three
-    constraint hypotheses discharged, refutes
-    `challenge_lemma_theta_layering` on the class the archive
-    invokes. This is the machine-checkable shape of "the archive
-    relies on a false lemma in the generality in which it is
+/-- Route (b) of the challenge: a single violating theta-lift
+    multiplicity, with all three constraint hypotheses discharged,
+    refutes `challenge_lemma_theta_layering` on the class the
+    archive invokes. This is the machine-checkable shape of "the
+    archive relies on a false lemma in the generality in which it is
     applied". -/
 def DisproofObligation (C : ClassicalAnalyticData) : Prop :=
   ∃ m : ThetaLiftMultiplicity,
@@ -123,6 +137,13 @@ def DisproofObligation (C : ClassicalAnalyticData) : Prop :=
     m.character_avg_holds ∧
     survivingMass m.toLiftMultiplicity
       > C.afe.errorBound + C.afe.windowLength
+
+/-- Route (c) of the challenge: a classical input whose weak-density
+    field already implies `RiemannHypothesis`. This is the
+    circularity route; it also refutes `challenge_lemma_theta_layering`
+    at the level of hypotheses, without needing a countermodel. -/
+def CircularityObligation : Prop :=
+  ∃ C : ClassicalAnalyticData, C.weakDensity → RiemannHypothesis
 
 /-- **Closed.** A violating theta-lift multiplicity refutes the
     theta-sharpened bound on the singleton list. -/
@@ -179,16 +200,18 @@ theorem vacuous_theta_bounded (C : ClassicalAnalyticData) :
 
 /-! ## 6. Status
 
-| Item | State |
-|------|-------|
-| Local interfaces (mirror of ContinuumGapChallenge) | closed, no sorry |
-| `ThetaLiftMultiplicity` shape | defined; three `Prop` placeholders |
-| `challenge_lemma_theta_layering` (theta-sharpened) | **open**, one sorry |
-| `DisproofObligation` shape | defined |
-| `disproof_obligation_refutes` | **closed**, no sorry |
-| `vacuous_theta_bounded` (live-path instance) | **closed**, no sorry |
-| Instantiation of three theta constraints | open (extraction pending) |
-| Countermodel deciding `DisproofObligation` | not constructed |
+| Item                                            | State                          |
+|-------------------------------------------------|--------------------------------|
+| Local interfaces (mirror of ContinuumGapChallenge) | closed, no sorry           |
+| `ThetaLiftMultiplicity` shape                   | defined; three `Prop` placeholders |
+| `challenge_lemma_theta_layering` (theta-sharpened) | **open**, one sorry        |
+| `DisproofObligation` shape                      | defined                        |
+| `CircularityObligation` shape                   | defined                        |
+| `disproof_obligation_refutes`                   | **closed**, no sorry           |
+| `vacuous_theta_bounded` (live-path instance)    | **closed**, no sorry           |
+| Instantiation of three theta constraints        | open (extraction pending)      |
+| Countermodel deciding `DisproofObligation`      | not constructed                |
+| Circularity witness deciding `CircularityObligation` | not constructed           |
 
 -/
 
