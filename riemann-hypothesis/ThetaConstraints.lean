@@ -31,13 +31,10 @@
   Date: 2026-11-23
 -/
 
-import Mathlib.NumberTheory.LSeries.RiemannZeta
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.List.Basic
 import Mathlib.Order.Basic
 import Mathlib.Tactic
-
-open Real
 
 namespace ThetaConstraints
 
@@ -75,10 +72,10 @@ structure LiftMultiplicity where
 
 def survivingMass (m : LiftMultiplicity) : ℝ := m.mass_after_trace
 
-lemma survivingMass_nonneg (m : LiftMultiplicity) : 0 ≤ survivingMass m :=
+theorem survivingMass_nonneg (m : LiftMultiplicity) : 0 ≤ survivingMass m :=
   m.trace_nonneg
 
-lemma survivingMass_le_raw (m : LiftMultiplicity) : survivingMass m ≤ m.mass_raw := by
+theorem survivingMass_le_raw (m : LiftMultiplicity) : survivingMass m ≤ m.mass_raw := by
   calc survivingMass m = m.mass_after_trace := rfl
     _ ≤ m.mass_after_slope := m.trace_le_slope
     _ ≤ m.mass_after_averaging := m.slope_le_avg
@@ -139,11 +136,12 @@ def DisproofObligation (C : ClassicalAnalyticData) : Prop :=
       > C.afe.errorBound + C.afe.windowLength
 
 /-- Route (c) of the challenge: a classical input whose weak-density
-    field already implies `RiemannHypothesis`. This is the
-    circularity route; it also refutes `challenge_lemma_theta_layering`
-    at the level of hypotheses, without needing a countermodel. -/
-def CircularityObligation : Prop :=
-  ∃ C : ClassicalAnalyticData, C.weakDensity → RiemannHypothesis
+    field already implies the target RH statement. Parameterized on the
+    target so this file does not depend on Mathlib's naming of RH.
+    Callers instantiate with Mathlib's `RiemannHypothesis` (or any Prop)
+    when available. -/
+def CircularityObligation (RH : Prop) : Prop :=
+  ∃ C : ClassicalAnalyticData, C.weakDensity → RH
 
 /-- **Closed.** A violating theta-lift multiplicity refutes the
     theta-sharpened bound on the singleton list. -/
@@ -192,11 +190,11 @@ theorem vacuous_theta_bounded (C : ClassicalAnalyticData) :
   intro m hm
   simp only [List.mem_singleton] at hm
   subst hm
-  show survivingMass vacuousMultiplicity
-      ≤ C.afe.errorBound + C.afe.windowLength
   have h : (0 : ℝ) ≤ C.afe.errorBound + C.afe.windowLength := by
     linarith [C.afe.error_nonneg, C.afe.window_pos]
-  simpa [survivingMass, vacuousMultiplicity] using h
+  -- Force definitional reduction of survivingMass vacuousMultiplicity → 0
+  change (0 : ℝ) ≤ C.afe.errorBound + C.afe.windowLength
+  exact h
 
 /-! ## 6. Status
 
