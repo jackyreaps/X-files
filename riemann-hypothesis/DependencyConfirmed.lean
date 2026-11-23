@@ -16,11 +16,10 @@
   Date: 2026-11-23
 -/
 
-import Mathlib.NumberTheory.LSeries.RiemannZeta
 import Mathlib.Data.Real.Basic
+import Mathlib.Data.List.Basic
+import Mathlib.Order.Basic
 import Mathlib.Tactic
-
-open Complex Real
 
 namespace DependencyConfirmed
 
@@ -34,10 +33,9 @@ def nonVacuousGeometry (witness : Prop) : GeometryPredicate := fun _ _ _ => witn
 
 /-! ## 2. Public graph fact -/
 
-def steps_below_riemannHypothesis_anyGeometry : Nat := 8
+def steps_below_riemannHypothesis_anyGeometry : Nat := Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))))
 
-theorem steps_positive : 0 < steps_below_riemannHypothesis_anyGeometry := by
-  native_decide
+theorem steps_positive : 0 < steps_below_riemannHypothesis_anyGeometry := Nat.succ_pos _
 
 /-! ## 3. Vacuity on the live path -/
 
@@ -48,7 +46,7 @@ theorem vacuous_geometry_carries_no_force (h : anyGeometry () () ()) : True := h
 /-! ## 4. Link to the continuum-gap challenge -/
 
 theorem vacuous_geometry_supplies_no_extra_force
-    (h : anyGeometry () () ()) : True := fun _ => h
+    (h : anyGeometry () () ()) : True := h
 
 /-- If the object that reaches rhOfAll is vacuous, then it is bounded
     by any classical package. Closed in FormalObstruction. -/
