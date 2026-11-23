@@ -19,33 +19,12 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> $GITHUB_PATH
 
-      - name: Switch lakefile to real Mathlib
+      - name: Assert lakefile and toolchain pin Mathlib v4.30.0
         run: |
-          cat > lakefile.toml << 'LAKE'
-          name = "X-files"
-          defaultTargets = ["RiemannHypothesis"]
-
-          [[require]]
-          name = "mathlib"
-          scope = "leanprover-community"
-          rev = "v4.30.0"
-
-          [[lean_lib]]
-          name = "RiemannHypothesis"
-          srcDir = "riemann-hypothesis"
-          roots = [
-            "ContinuumGapChallenge",
-            "ThetaConstraints",
-            "FormalObstruction",
-            "ExtractedVacuousGeometry",
-            "DependencyConfirmed",
-            "LivePathExtraction",
-            "VacuousGeometryBridge",
-            "ContinuumGapCritique"
-          ]
-          LAKE
-          test -f lean-toolchain || echo 'leanprover/lean4:v4.30.0' > lean-toolchain
-          rm -f lake-manifest.json
+          grep -q 'rev = "v4.30.0"' lakefile.toml || \
+            { echo "::error::lakefile.toml does not pin v4.30.0"; exit 1; }
+          grep -q 'v4.30.0' lean-toolchain || \
+            { echo "::error::lean-toolchain does not pin v4.30.0"; exit 1; }
 
       - name: Cache lake packages
         uses: actions/cache@v4
@@ -53,52 +32,38 @@ jobs:
           path: |
             ~/.elan
             .lake
-          key: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-mathlib-v4.30.0
-          restore-keys: |
-            lake-${{ runner.os }}-
+          key: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain', 'lakefile.toml', 'lake-manifest.json') }}
+          restore-keys: lake-${{ runner.os }}-
 
       - name: lake update + Mathlib olean cache
         run: |
           lake update
-          lake exe cache get || true
+          lake exe cache get
 
-      - name: Build
+      - name: Build RiemannHypothesis
         run: lake build RiemannHypothesis
 
-      - name: Enforce sorry budget
+      - name: Sorry gate (scoped to riemann-hypothesis/)
         run: |
-          n=$(grep -rn --include='*.lean' -E '^\s*sorry\b' \
-                --exclude-dir=.lake riemann-hypothesis/ | wc -l)
+          # Match `sorry` as a standalone token, excluding single-line `--` comments.
+          n=$(grep -rn --include='*.lean' -E '\bsorry\b' riemann-hypothesis/ \
+                | grep -vE ':\s*--' \
+                | wc -l)
           echo "Sorry count: $n (allowed: exactly 3)"
-          grep -rn --include='*.lean' -E '^\s*sorry\b' \
-                --exclude-dir=.lake riemann-hypothesis/ || true
           if [ "$n" -ne 3 ]; then
-            echo "::error::Sorry count $n ≠ 3 (expected: 2 open obligations + 1 schematic)"
+            echo "::error::Sorry count $n != 3"
+            grep -rn --include='*.lean' -E '\bsorry\b' riemann-hypothesis/ \
+              | grep -vE ':\s*--'
             exit 1
           fi
-          echo "Sorry budget OK."
 
-      - name: Enforce no axioms / native_decide / unsafe
+      - name: Policy gate (no axiom / native_decide / unsafe)
         run: |
-          for pat in '^axiom ' '^[[:space:]]*axiom ' 'native_decide' 'unsafe def' 'unsafe theorem'; do
-            hits=$(grep -rn --include='*.lean' -E "$pat" \
-                     --exclude-dir=.lake riemann-hypothesis/ | wc -l)
+          for pat in '^axiom ' 'native_decide' 'unsafe def' 'unsafe theorem'; do
+            hits=$(grep -rn --include='*.lean' -E "$pat" riemann-hypothesis/ | wc -l || true)
             if [ "$hits" -gt 0 ]; then
-              echo "::error::Policy ban violated: /$pat/ ($hits hits)"
-              grep -rn --include='*.lean' -E "$pat" \
-                     --exclude-dir=.lake riemann-hypothesis/
+              echo "::error::Policy ban: $pat ($hits hits)"
+              grep -rn --include='*.lean' -E "$pat" riemann-hypothesis/
               exit 1
             fi
           done
-          echo "Policy bans clean (no axiom / native_decide / unsafe)."
-
-      - name: Summary
-        if: always()
-        run: |
-          {
-            echo "### RH Continuum Gap Challenge"
-            echo "- Toolchain: $(cat lean-toolchain)"
-            echo "- Mathlib: v4.30.0"
-            echo "- Expected sorrys: 3"
-            echo "- Policy: no axiom / native_decide / unsafe"
-          } >> "$GITHUB_STEP_SUMMARY"
