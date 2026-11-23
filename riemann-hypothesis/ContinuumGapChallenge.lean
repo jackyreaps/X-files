@@ -23,15 +23,10 @@
   Date: 2026-11-23
 -/
 
-import Mathlib.NumberTheory.LSeries.RiemannZeta
-import Mathlib.NumberTheory.LSeries.Dirichlet
-import Mathlib.Analysis.SpecialFunctions.Complex.Log
 import Mathlib.Data.Real.Basic
-import Mathlib.Data.Nat.Basic
+import Mathlib.Data.List.Basic
 import Mathlib.Order.Basic
 import Mathlib.Tactic
-
-open Complex Real
 
 namespace ContinuumGapChallenge
 
@@ -78,10 +73,10 @@ structure LiftMultiplicity where
 
 def survivingMass (m : LiftMultiplicity) : ℝ := m.mass_after_trace
 
-lemma survivingMass_nonneg (m : LiftMultiplicity) : 0 ≤ survivingMass m :=
+theorem survivingMass_nonneg (m : LiftMultiplicity) : 0 ≤ survivingMass m :=
   m.trace_nonneg
 
-lemma survivingMass_le_raw (m : LiftMultiplicity) : survivingMass m ≤ m.mass_raw := by
+theorem survivingMass_le_raw (m : LiftMultiplicity) : survivingMass m ≤ m.mass_raw := by
   calc survivingMass m = m.mass_after_trace := rfl
     _ ≤ m.mass_after_slope := m.trace_le_slope
     _ ≤ m.mass_after_averaging := m.slope_le_avg
@@ -136,7 +131,7 @@ theorem challenge_consequence
     (h : multiplicity_bounded_by_classical ms C) :
     ¬ (∃ m, m ∈ ms ∧ survivingMass m > C.afe.errorBound + C.afe.windowLength) := by
   rintro ⟨m, hm, hgt⟩
-  exact absurd (h m hm) (not_le.mpr hgt)
+  exact absurd (h m hm) (not_le_of_gt hgt)
 
 /-! ## 4b. Live-path consequence — CLOSED -/
 
@@ -163,9 +158,9 @@ def unboundedMultiplicity (K : ℝ) (hK : 0 ≤ K) : LiftMultiplicity where
   avg_nonneg := hK
   slope_nonneg := hK
   trace_nonneg := hK
-  avg_le_raw := le_refl _
-  slope_le_avg := le_refl _
-  trace_le_slope := le_refl _
+  avg_le_raw := le_rfl
+  slope_le_avg := le_rfl
+  trace_le_slope := le_rfl
 
 /-- **Closed.** The general multiplicity bound is NOT free: for the bare
     `LiftMultiplicity` interface, mass can be chosen arbitrarily large and
