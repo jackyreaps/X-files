@@ -6,14 +6,18 @@
 
   Status (2026-11-23):
   - LIVE-PATH (vacuous) case: CLOSED, no sorry.
-    The geometry on the 8-edge path to rhOfAll is
-    anyGeometry := fun _ _ _ => True, so the surviving multiplicity
-    is 0 and the challenge bound holds definitionally
+    anyGeometry := fun _ _ _ => True on the 8-edge path forces
+    surviving multiplicity 0, so the bound holds definitionally
     (multiplicity_of_vacuous_le_classical, challenge_consequence_live_path).
-  - GENERAL (non-vacuous) case: OPEN here as a conditional sorry
-    (challenge_lemma_general_open), but NOT REQUIRED for the
-    live-path obstruction. Independent write-up:
-    FormalObstruction.lean.
+
+  - GENERAL (non-vacuous) case: OPEN, and LOAD-BEARING for the theta
+    layering. challenge_lemma_theta_layering is the crux. It cannot be
+    discharged from the interface alone (general_bound_fails_unrestricted);
+    the theta-lift chain must supply theta-specific constraints on
+    multiplicities. The vacuous closure above does NOT discharge this
+    lemma — it shows only that the live path is degenerate. If anyGeometry
+    is replaced by a non-trivial predicate, the general obligation is
+    active.
 
   Does not import the 17M-line archive.
   Date: 2026-11-23
@@ -145,17 +149,67 @@ theorem challenge_consequence_live_path
   challenge_consequence [vacuousMultiplicity] C
     (multiplicity_of_vacuous_le_classical C)
 
-/-! ## 5. General (non-vacuous) case — OPEN -/
+/-! ## 5. General (non-vacuous) case — OPEN and LOAD-BEARING -/
 
-/-- **Open challenge lemma (general case).**
-    Genuinely open: the general statement is not derivable from the
-    hypotheses as stated, since arbitrary lift multiplicities can have
-    large mass. It is NOT required for the live-path obstruction;
-    see `multiplicity_of_vacuous_le_classical` and
-    `challenge_consequence_live_path` above for the closed case that
-    applies to the actual archive.
-    This `sorry` is the remaining general obligation. -/
-theorem challenge_lemma_general_open
+/-- A family of multiplicities with arbitrarily large surviving mass. -/
+def unboundedMultiplicity (K : ℝ) (hK : 0 ≤ K) : LiftMultiplicity where
+  window := 1
+  mass_raw := K
+  mass_after_averaging := K
+  mass_after_slope := K
+  mass_after_trace := K
+  window_pos := by norm_num
+  raw_nonneg := hK
+  avg_nonneg := hK
+  slope_nonneg := hK
+  trace_nonneg := hK
+  avg_le_raw := le_refl _
+  slope_le_avg := le_refl _
+  trace_le_slope := le_refl _
+
+/-- **Closed.** The general multiplicity bound is NOT free: for the bare
+    `LiftMultiplicity` interface, mass can be chosen arbitrarily large and
+    the bound fails. This is the reason the theta layering is load-bearing:
+    without theta-specific constraints on multiplicities, the surviving
+    mass is not controlled by classical data. -/
+theorem general_bound_fails_unrestricted
+    (C : ClassicalAnalyticData) (K : ℝ)
+    (hK : C.afe.errorBound + C.afe.windowLength < K) :
+    ¬ multiplicity_bounded_by_classical
+        [unboundedMultiplicity K
+          (by linarith [C.afe.error_nonneg, C.afe.window_pos, hK])] C := by
+  intro h
+  have h1 : survivingMass
+      (unboundedMultiplicity K
+        (by linarith [C.afe.error_nonneg, C.afe.window_pos, hK]))
+      ≤ C.afe.errorBound + C.afe.windowLength :=
+    h _ (by simp)
+  simp only [survivingMass, unboundedMultiplicity] at h1
+  linarith
+
+/-- **Open challenge lemma — LOAD-BEARING for the theta layering.**
+
+    As stated (for arbitrary `ms : List LiftMultiplicity`) this lemma is
+    FALSE — see `general_bound_fails_unrestricted`. The theta layering
+    is exactly what must supply the restriction: theta-specific
+    constraints (slope inequality, relative-trace estimate, character
+    averaging bounds) on multiplicities, so that the surviving mass is
+    controlled by classical data.
+
+    Two possible outcomes for the challenge:
+    (a) the theta layering does supply such constraints, and the lemma
+        holds on the restricted class — then the theta-lift argument has
+        force and RH follows from the classical data plus theta lifts;
+    (b) no such restriction suffices — then the theta layering provides
+        no surviving mass beyond classical data, and the obstruction
+        stands (the live-path vacuous closure is then the special case
+        that applies).
+
+    The vacuous closure above does NOT discharge this lemma: it shows
+    only that the live path is degenerate and carries zero surviving
+    mass. If `anyGeometry` is replaced by a non-trivial predicate, this
+    obligation is active. -/
+theorem challenge_lemma_theta_layering
     (ms : List LiftMultiplicity) (C : ClassicalAnalyticData) :
     multiplicity_bounded_by_classical ms C := by
   sorry
