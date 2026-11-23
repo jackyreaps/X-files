@@ -30,7 +30,7 @@ A machine-checked challenge isolating the **Continuum Gap**: the structural and 
 
 | File | Role |
 |---|---|
-| `ContinuumGapChallenge.lean` | Executable challenge skeleton with one `sorry` at the general comparison |
+| `ContinuumGapChallenge.lean` | Live-path (vacuous) case closed (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`); general case **open and load-bearing** for the theta layering (`challenge_lemma_theta_layering`, one `sorry`); `general_bound_fails_unrestricted` shows the general bound is not free — the theta-lift chain must supply theta-specific constraints on multiplicities |
 | `FormalObstruction.lean` | Closes the comparison for the vacuous case (no `sorry`) |
 | `LivePathExtraction.lean` | Primary-source extraction of the 8-edge path |
 | `DependencyConfirmed.lean` | Public graph evidence and vacuity proof |
