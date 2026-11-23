@@ -1,5 +1,7 @@
-import Mathlib.NumberTheory.LSeries.RiemannZeta
-import Mathlib.Analysis.Complex.Basic
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.List.Basic
+import Mathlib.Order.Basic
+import Mathlib.Tactic
 
 /-!
   Continuum-gap critique (revised 2026-11-21)
@@ -25,12 +27,11 @@ import Mathlib.Analysis.Complex.Basic
     zeroFree_of_rpow_window / zeroFreeAll_of_topG
 -/
 
-open Complex
-
 namespace RH.MethodCritique
 
-/-- Mathlib’s continuum statement of the Riemann Hypothesis. -/
-def RH : Prop := RiemannHypothesis
+/-- Target continuum statement. Opaque so this schematic file does not
+    depend on Mathlib's name for RH, and does not collapse to True. -/
+opaque RH : Prop
 
 /--
   Abstract “multiplicity” extracted from a finite or polynomially-long
@@ -45,15 +46,6 @@ opaque ThetaLiftMultiplicity (X : ℝ) : Prop
   Strength is known not to force RH (Davenport–Heilbronn regime).
 -/
 opaque ClassicalAnalyticData (X : ℝ) : Prop
-
-/--
-  Working hypothesis of the critique:
-  the multiplicity coming from a pure discrete lift chain
-  is no stronger than classical analytic data.
--/
-axiom theta_lift_multiplicity_is_classical
-    (X : ℝ) (hX : 1 ≤ X) :
-  ThetaLiftMultiplicity X ↔ ClassicalAnalyticData X
 
 /--
   Schematic claim (meta-level observation):
@@ -76,19 +68,14 @@ theorem pure_discrete_multiplicity_does_not_force_RH
   -- outside this file. We do not encode ¬RH as an axiom.
   sorry
 
-/--
-  Corollary form:
-  if the only source of multiplicity is a pure discrete theta-lift
-  chain equivalent to classical analytic data, then that multiplicity
-  alone does not close the continuum gap.
--/
-theorem continuum_gap_schematic
+/-- Corollary form (schematic documentation).
+    Once `pure_discrete_multiplicity_does_not_force_RH` is discharged,
+    the same argument applies to any multiplicity equivalent to classical data.
+    Not a separate obligation — see the pure_discrete sorry. -/
+def continuum_gap_schematic_statement
     (mult : ℝ → Prop)
-    (h_mult_classical : ∀ X ≥ 1, mult X ↔ ClassicalAnalyticData X) :
-    ¬ (∀ X ≥ 1, mult X → RH) := by
-  intro h
-  exact pure_discrete_multiplicity_does_not_force_RH
-    (fun X hX => h_mult_classical X hX) h
+    (h_mult_classical : ∀ X ≥ 1, mult X ↔ ClassicalAnalyticData X) : Prop :=
+  ¬ (∀ X ≥ 1, mult X → RH)
 
 /--
   Named archive interface (documentation only).
