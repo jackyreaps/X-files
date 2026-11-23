@@ -31,13 +31,13 @@ namespace ExtractedVacuousGeometry
 
 /-! ## 1. Extracted definition -/
 
-abbrev GeometryPredicate := Unit -> Unit -> Unit -> Prop
+abbrev GeometryPredicate := Unit → Unit → Unit → Prop
 
 def anyGeometry : GeometryPredicate := fun _ _ _ => True
 
 theorem anyGeometry_eq_True : anyGeometry () () () = True := rfl
 
-theorem anyGeometry_is_vacuous : anyGeometry () () () <-> True := by rfl
+theorem anyGeometry_is_vacuous : anyGeometry () () () ↔ True := ⟨id, id⟩
 
 /-! ## 2. Non-vacuous contrast -/
 
@@ -58,10 +58,9 @@ def load_bearing_obligation : Prop := True
 
 /-! ## 4. Link to the continuum-gap challenge -/
 
-theorem vacuous_on_live_path (h : dependency_confirmed) :
-    anyGeometry () () () <-> True := by
-  intro
-  exact anyGeometry_is_vacuous
+theorem vacuous_on_live_path (_h : dependency_confirmed) :
+    anyGeometry () () () ↔ True :=
+  anyGeometry_is_vacuous
 
 /-! ## 5. Status table
 
