@@ -15,14 +15,10 @@
   Date: 2026-11-23
 -/
 
-import Mathlib.NumberTheory.LSeries.RiemannZeta
-import Mathlib.NumberTheory.LSeries.Dirichlet
-import Mathlib.Analysis.SpecialFunctions.Complex.Log
 import Mathlib.Data.Real.Basic
-import Mathlib.Data.Nat.Basic
+import Mathlib.Data.List.Basic
+import Mathlib.Order.Basic
 import Mathlib.Tactic
-
-open Complex Real
 
 namespace FormalObstruction
 
@@ -44,7 +40,7 @@ structure ClassicalAnalyticData where
   weakDensity : Prop
 
 def classicalData0 : ClassicalAnalyticData where
-  fe := ⟨True.intro, True.intro⟩
+  fe := ⟨trivial, trivial⟩
   afe := { windowLength := 1, errorBound := 1,
            window_pos := by norm_num,
            error_nonneg := by norm_num }
