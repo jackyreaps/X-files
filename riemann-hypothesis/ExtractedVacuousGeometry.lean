@@ -24,7 +24,9 @@
   Date: 2026-11-23
 -/
 
-import Mathlib.NumberTheory.LSeries.RiemannZeta
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.List.Basic
+import Mathlib.Order.Basic
 import Mathlib.Tactic
 
 namespace ExtractedVacuousGeometry
