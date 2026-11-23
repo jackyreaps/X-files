@@ -2,8 +2,8 @@
 ## Formal obstruction target against the certified theta-lift RH proof (Alpöge 2026)
 
 **Repository:** jackyreaps/X-files  
-**Status:** Formal challenge statement — one critical lemma left open  
-**Date:** 2026-11-21  
+**Status:** Formal challenge statement — general comparison open; vacuous case closed  
+**Date:** 2026-11-21 (initial); 2026-11-23 (status update)  
 **Scope:** Continuum metrics allowed; discrete residual bookkeeping optional
 
 ---
@@ -69,76 +69,15 @@ For any finite collection of lift multiplicities arising from the theta-lift cha
 
 Closing this lemma in Lean yields a machine-checked obstruction: the lift chain does not extract more force toward RH than the classical data already give.
 
----
-
-### 6. Consequence
-
-If the challenge lemma holds and the classical package is of non-RH strength, then:
-
-\[
-\text{multiplicity bounded by classical data} \;\not\Rightarrow\; \texttt{RiemannHypothesis}.
-\]
-
-The continuum transfer therefore fails to prove RH from the lift multiplicity alone.
+**Scope note (23 November 2026).** The challenge lemma has been split into two cases. The general case remains open — one `sorry` in `ContinuumGapChallenge.lean`. The vacuous case — the one actually found on the live dependency path of the certified archive — is closed with no `sorry` in `FormalObstruction.lean`. See §5b.
 
 ---
 
-### 7. How to close the lemma
+### 5b. The vacuous case: already closed
 
-Three routes, in increasing strength:
+Independent kernel audits of the certified archive (commit `40e56bab`) located the geometry predicate that appears on the live dependency path to `rhOfAll`:
 
-1. **Equivalence.** Extract the concrete multiplicity predicate from the certified archive (the object passed to `rhOfAll`). Prove inside Lean that it is definitionally or logically equivalent to a statement already implied by functional equation + AFE + weak density of non-RH strength.
-
-2. **Counter-model.** Produce an explicit formal object that satisfies every intermediate lemma of the lift chain yet possesses a zero off the critical line (Davenport–Heilbronn style construction formalized against the same hypotheses).
-
-3. **Circularity.** Locate an unstated analytic hypothesis of RH strength that was smuggled into one of the “classical” inputs (an estimate that already encodes a zero-free region or density theorem strong enough for RH).
-
-Route 1 is the practical first target. Routes 2 and 3 remain available once the multiplicity predicate is isolated.
-
----
-
-### 8. Continuum metrics permitted
-
-The challenge does **not** require discrete cascade language. Any continuum formulation is admissible provided:
-
-- the classical side stays of non-RH strength;
-- the multiplicity object is the one actually used by the certified proof;
-- the comparison is stated as a Lean proposition that can be type-checked.
-
-Optional residual / energy-floor bookkeeping may be added for computational control, but is not required for the logical force of the obstruction.
-
----
-
-### 9. Relation to existing X-files filters
-
-The same structural pattern already used for Navier–Stokes (coordinate non-degeneracy, residual-flux parity, unforced-boundary filters) appears here in analytic form:
-
-- the continuum uniqueness / transfer step is valid only if the multiplicity it transports is legitimate;
-- if the multiplicity is no stronger than classical non-RH data, the transfer does not establish the critical line.
-
-The present challenge is the precise analytic counterpart of that filter for the certified RH formalization.
-
----
-
-### 10. Lean skeleton
-
-A companion Lean file (`ContinuumGapChallenge.lean`) isolates the structures and the single `sorry` at the challenge lemma. It imports only Mathlib, does not depend on the 17 M-line archive, and can be built with:
-
-```bash
-lake build ContinuumGapChallenge
-```
-
-Closing the `sorry` with a proof that uses only Mathlib + the extracted multiplicity predicate completes the formal negation target.
-
----
-
-### 11. Status
-
-| Item | State |
-|------|--------|
-| Statement match (Mathlib RH) | certified by Lean community |
-| Kernel acceptance | certified |
-| Multiplicity ↔ classical equivalence | **open** (challenge lemma) |
-| Formal negation | incomplete until challenge lemma is closed |
-
-This document records the obstruction target for the X-files repository. It does not claim that the certified archive is already broken; it states the exact lemma that must be broken for a machine-checked negation to exist.
+```lean
+-- OverIx.lean, src/Development/AbelianVarietyTheory/Definitions/
+--   AutomorphicMembership/OverIx.lean
+def anyGeometry : GeoP := fun _ _ _ => True
