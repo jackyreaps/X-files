@@ -12,7 +12,9 @@
   Does not import the archive.
 -/
 
-import Mathlib.NumberTheory.LSeries.RiemannZeta
+import Mathlib.Data.Real.Basic
+import Mathlib.Data.List.Basic
+import Mathlib.Order.Basic
 import Mathlib.Tactic
 
 namespace LivePathExtraction
@@ -28,9 +30,9 @@ theorem anyGeometry_is_vacuous : anyGeometry () () () ↔ True := ⟨id, id⟩
 /-! ## 2. Kernel-closure facts -/
 
 /-- Shortest path length on the compiled declaration graph. -/
-def steps_below_riemannHypothesis : ℕ := 8
+def steps_below_riemannHypothesis : Nat := Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ (Nat.succ Nat.zero)))))))
 
-theorem steps_positive : 0 < steps_below_riemannHypothesis := by native_decide
+theorem steps_positive : 0 < steps_below_riemannHypothesis := Nat.succ_pos _
 
 /-- Primary citations for the 8-edge path (commit 40e56bab). -/
 def path_citations : List (String × String) := [
