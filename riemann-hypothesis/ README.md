@@ -32,7 +32,7 @@ A machine-checked challenge isolating the **Continuum Gap**: the structural and 
 
 | File | Role |
 |---|---|
-| `ContinuumGapChallenge.lean` | Live-path (vacuous) case closed; bare general case open (`challenge_lemma_general`, one `sorry`) |
+| `ContinuumGapChallenge.lean` | Live-path (vacuous) case closed; bare general case open (`challenge_lemma_theta_layering`, one `sorry`) |
 | `ThetaConstraints.lean` | Theta-sharpened obligation (`challenge_lemma_theta_layering`) and `DisproofObligation` shape |
 | `FormalObstruction.lean` | Closes the comparison for the vacuous case (no `sorry`) |
 | `LivePathExtraction.lean` | Primary-source extraction of the 8-edge path |
@@ -41,4 +41,25 @@ A machine-checked challenge isolating the **Continuum Gap**: the structural and 
 | `VacuousGeometryBridge.lean` | Connects the challenge to the concrete vacuous finding |
 | `X-files_Continuum_Gap_Challenge.md` | Full challenge statement |
 | `CITATIONS.md` | Citation table for the 8-edge path and audit facts |
-| `continuum-gap-critique.lean` | Conceptual illustration (schematic) |
+| `ContinuumGapCritique.lean` | Conceptual illustration (schematic) |
+
+## Sorry policy
+
+Exactly **3** `sorry`s total:
+1. `ContinuumGapChallenge.challenge_lemma_theta_layering` — open obligation
+2. `ThetaConstraints.challenge_lemma_theta_layering` — open obligation
+3. `ContinuumGapCritique.pure_discrete_multiplicity_does_not_force_RH` — deliberate schematic
+
+No other sorrys, axioms, or `native_decide`s are permitted. CI enforces the count.
+
+> **Note:** Root `lakefile.toml` requires Mathlib v4.30.0. CI builds `RiemannHypothesis` under real Mathlib. Until CI is green, file-header "CLOSED" means statement type-checks and proof shape is present — not yet machine-checked under Mathlib.
+
+## Build / verification status
+
+| Stage | What it means | Status |
+|-------|----------------|--------|
+| **Statement type-check** | Structures, namespaces, imports compile | Done (sandbox) |
+| **Mathlib CI** | Full proofs under Mathlib v4.30.0 | **Awaiting push** |
+| **Content (Front A)** | Circularity / theta-constraint audit against the archive | Blocked on green CI |
+
+Until CI is green, do **not** read file-header "CLOSED, no sorry" as "machine-checked under Mathlib."
