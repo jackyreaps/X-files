@@ -1,0 +1,104 @@
+name: Lean build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install elan
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Switch lakefile to real Mathlib
+        run: |
+          cat > lakefile.toml << 'LAKE'
+          name = "X-files"
+          defaultTargets = ["RiemannHypothesis"]
+
+          [[require]]
+          name = "mathlib"
+          scope = "leanprover-community"
+          rev = "v4.30.0"
+
+          [[lean_lib]]
+          name = "RiemannHypothesis"
+          srcDir = "riemann-hypothesis"
+          roots = [
+            "ContinuumGapChallenge",
+            "ThetaConstraints",
+            "FormalObstruction",
+            "ExtractedVacuousGeometry",
+            "DependencyConfirmed",
+            "LivePathExtraction",
+            "VacuousGeometryBridge",
+            "ContinuumGapCritique"
+          ]
+          LAKE
+          test -f lean-toolchain || echo 'leanprover/lean4:v4.30.0' > lean-toolchain
+          rm -f lake-manifest.json
+
+      - name: Cache lake packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.elan
+            .lake
+          key: lake-${{ runner.os }}-${{ hashFiles('lean-toolchain') }}-mathlib-v4.30.0
+          restore-keys: |
+            lake-${{ runner.os }}-
+
+      - name: lake update + Mathlib olean cache
+        run: |
+          lake update
+          lake exe cache get || true
+
+      - name: Build
+        run: lake build RiemannHypothesis
+
+      - name: Enforce sorry budget
+        run: |
+          n=$(grep -rn --include='*.lean' -E '^\s*sorry\b' \
+                --exclude-dir=.lake riemann-hypothesis/ | wc -l)
+          echo "Sorry count: $n (allowed: exactly 3)"
+          grep -rn --include='*.lean' -E '^\s*sorry\b' \
+                --exclude-dir=.lake riemann-hypothesis/ || true
+          if [ "$n" -ne 3 ]; then
+            echo "::error::Sorry count $n ≠ 3 (expected: 2 open obligations + 1 schematic)"
+            exit 1
+          fi
+          echo "Sorry budget OK."
+
+      - name: Enforce no axioms / native_decide / unsafe
+        run: |
+          for pat in '^axiom ' '^[[:space:]]*axiom ' 'native_decide' 'unsafe def' 'unsafe theorem'; do
+            hits=$(grep -rn --include='*.lean' -E "$pat" \
+                     --exclude-dir=.lake riemann-hypothesis/ | wc -l)
+            if [ "$hits" -gt 0 ]; then
+              echo "::error::Policy ban violated: /$pat/ ($hits hits)"
+              grep -rn --include='*.lean' -E "$pat" \
+                     --exclude-dir=.lake riemann-hypothesis/
+              exit 1
+            fi
+          done
+          echo "Policy bans clean (no axiom / native_decide / unsafe)."
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### RH Continuum Gap Challenge"
+            echo "- Toolchain: $(cat lean-toolchain)"
+            echo "- Mathlib: v4.30.0"
+            echo "- Expected sorrys: 3"
+            echo "- Policy: no axiom / native_decide / unsafe"
+          } >> "$GITHUB_STEP_SUMMARY"
