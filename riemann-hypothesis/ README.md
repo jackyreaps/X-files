@@ -17,6 +17,8 @@ A machine-checked challenge isolating the **Continuum Gap**: the structural and 
 
 ## Open items
 
+- **Theta constraint instantiation:** the three `Prop` placeholders on `ThetaLiftMultiplicity` (`slope_bound_holds`, `relative_trace_holds`, `character_avg_holds`) must be replaced with the archive's actual theta-specific predicates before `challenge_lemma_theta_layering` can be decided.
+- **Countermodel:** a Davenport–Heilbronn-style object satisfying all three theta constraints and violating the classical bound has **not** been constructed.
 - **Load-bearing swap test:** replacing `anyGeometry` with a non-trivial predicate and selectively rebuilding the 8-edge path has **not** been executed (compute-bound).
 - **Comparator:** the leanprover-community Comparator has **not** yet been run on the full submission (multi-hour build).
 
@@ -30,11 +32,13 @@ A machine-checked challenge isolating the **Continuum Gap**: the structural and 
 
 | File | Role |
 |---|---|
-| `ContinuumGapChallenge.lean` | Live-path (vacuous) case closed (`multiplicity_of_vacuous_le_classical`, `challenge_consequence_live_path`); general case **open and load-bearing** for the theta layering (`challenge_lemma_theta_layering`, one `sorry`); `general_bound_fails_unrestricted` shows the general bound is not free — the theta-lift chain must supply theta-specific constraints on multiplicities |
+| `ContinuumGapChallenge.lean` | Live-path (vacuous) case closed; bare general case open (`challenge_lemma_general`, one `sorry`) |
+| `ThetaConstraints.lean` | Theta-sharpened obligation (`challenge_lemma_theta_layering`) and `DisproofObligation` shape |
 | `FormalObstruction.lean` | Closes the comparison for the vacuous case (no `sorry`) |
 | `LivePathExtraction.lean` | Primary-source extraction of the 8-edge path |
 | `DependencyConfirmed.lean` | Public graph evidence and vacuity proof |
 | `ExtractedVacuousGeometry.lean` | Exact extraction of `anyGeometry` from the archive |
 | `VacuousGeometryBridge.lean` | Connects the challenge to the concrete vacuous finding |
 | `X-files_Continuum_Gap_Challenge.md` | Full challenge statement |
+| `CITATIONS.md` | Citation table for the 8-edge path and audit facts |
 | `continuum-gap-critique.lean` | Conceptual illustration (schematic) |
