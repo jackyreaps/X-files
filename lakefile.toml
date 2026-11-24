@@ -1,14 +1,10 @@
 name = "X-files"
-defaultTargets = ["Xfiles", "RiemannHypothesis"]
+defaultTargets = ["RiemannHypothesis"]
 
 [[require]]
 name = "mathlib"
 scope = "leanprover-community"
 rev = "v4.30.0"
-
-[[lean_lib]]
-name = "Xfiles"
-# root modules: LASLS_*, VolumePreservation*, X-files_*, etc.
 
 [[lean_lib]]
 name = "RiemannHypothesis"
@@ -21,5 +17,6 @@ roots = [
   "DependencyConfirmed",
   "LivePathExtraction",
   "VacuousGeometryBridge",
-  "ContinuumGapCritique"
+  "ContinuumGapCritique",
+  "Disproof"
 ]
