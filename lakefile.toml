@@ -12,11 +12,12 @@ srcDir = "riemann-hypothesis"
 roots = [
   "ContinuumGapChallenge",
   "ThetaConstraints",
+  "Disproof",
+  "ScaffoldingAudit",
   "FormalObstruction",
   "ExtractedVacuousGeometry",
   "DependencyConfirmed",
   "LivePathExtraction",
   "VacuousGeometryBridge",
-  "ContinuumGapCritique",
-  "Disproof"
+  "ContinuumGapCritique"
 ]
