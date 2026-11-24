@@ -4,8 +4,6 @@
   A structural linter for Lean 4. 
   Identifies vacuous geometry and pass-through transport in 
   ultra-large formalizations.
-  
-  Core metaprogramming only. No Mathlib.Tactic dependency required.
 -/
 
 import Lean
@@ -64,23 +62,33 @@ partial def reconstructPath (parents : Std.HashMap Name Name) (root target : Nam
       | none => curr :: acc
   go target []
 
-/-- Checks if `fvarId` is used in `proofTerm` without ever being passed to an eliminator. -/
+/-- Checks if `fvarId` is used in `proofTerm` without ever being passed to an eliminator.
+    Uses pure recursion to avoid Lean 4 monadic closure issues. -/
 def isPassThrough (env : Environment) (proofTerm : Expr) (fvarId : FVarId) : Bool :=
-  let (_, (uses, eliminated)) := StateT.run (m := Id) (s := (0, false)) do
-    ForEachExpr.forEach proofTerm fun e => do
-      match e with
-      | .fvar id =>
-        if id == fvarId then
-          modify fun (u, el) => (u + 1, el)
-      | .app _ _ =>
-        let fn := e.getAppFn
-        if let .const fnName _ := fn then
+  let rec go (e : Expr) (uses : Nat) (eliminated : Bool) : Nat × Bool :=
+    match e with
+    | .fvar id =>
+      if id == fvarId then (uses + 1, eliminated) else (uses, eliminated)
+    | .app f a =>
+      let fn := f.getAppFn
+      let newElim := match fn with
+        | .const fnName _ =>
           let s := fnName.toString
-          if env.isRec fnName || s.endsWith ".rec" || s.endsWith ".casesOn" || fnName == ``False.elim then
-            if e.getAppArgs.any (fun arg => arg.hasAnyFVar (· == fvarId)) then
-              modify fun (u, _) => (u, true)
-      | _ => pure ()
-  uses > 0 && !eliminated
+          let isElim := env.isRec fnName || s.endsWith ".rec" || s.endsWith ".casesOn" || fnName == ``False.elim
+          if isElim && (f.hasAnyFVar (· == fvarId) || a.hasAnyFVar (· == fvarId)) then true else eliminated
+        | _ => eliminated
+      let (u1, e1) := go f uses newElim
+      go a u1 e1
+    | .lam _ _ b _ => go b uses eliminated
+    | .forallE _ _ b _ => go b uses eliminated
+    | .letE _ _ v b _ =>
+      let (u1, e1) := go v uses eliminated
+      go b u1 e1
+    | .mdata _ b => go b uses eliminated
+    | .proj _ _ b => go b uses eliminated
+    | _ => (uses, eliminated)
+  let (u, el) := go proofTerm 0 false
+  u > 0 && !el
 
 elab "#audit_theorem " target:ident : command => do
   let env ← getEnv
@@ -89,31 +97,36 @@ elab "#audit_theorem " target:ident : command => do
 
   logInfo m!"Auditing live dependency cone for: {rootName}"
   let (cone, parents) := walkDependencyCone env rootName
-  logInfo m!"Active non-stdlib constants in cone: {cone.size}"
+  logInfo m!"Active non-stdlib constants in cone: {cone.toList.length}"
 
-  liftTermElabM do
-    let mut vacuousCount := 0
-    let mut passThroughCount := 0
+  let (vacuousCount, passThroughCount) ← liftTermElabM do
+    cone.toList.foldlM (init := (0, 0)) fun (acc : Nat × Nat) constName => do
+      let (vac, pt) := acc
+      let some info := env.find? constName | return (vac, pt)
 
-    for constName in cone do
-      let some info := env.find? constName | continue
-
-      if (← isVacuousDef info) then
-        vacuousCount := vacuousCount + 1
+      let isVac := ← isVacuousDef info
+      let vac' := if isVac then vac + 1 else vac
+      if isVac then
         let path := reconstructPath parents rootName constName
         logInfo m!"[VACUOUS DEFINITION] `{constName}` ({path.length - 1} edges below `{rootName}`):"
         logInfo m!"   {String.intercalate " -> " (path.map toString)}"
 
-      if let some val := info.value? then
-        lambdaTelescope val fun args body => do
-          for arg in args do
-            let type ← inferType arg
-            let hasGeoConst := type.getUsedConstants.any (·.toString.contains "Geo")
-            if (← isProp type) && hasGeoConst then
-              if isPassThrough env body arg.fvarId! then
-                passThroughCount := passThroughCount + 1
-                logInfo m!"[PASS-THROUGH] `{constName}` transports `{type}` without eliminating it."
+      let pt' ← match info.value? with
+        | some val =>
+          lambdaTelescope val fun args body => do
+            args.foldlM (init := pt) fun (count : Nat) (arg : Expr) => do
+              let type ← inferType arg
+              let hasGeoConst := type.getUsedConstants.any (·.toString.contains "Geo")
+              if (← isProp type) && hasGeoConst then
+                if isPassThrough env body arg.fvarId! then
+                  logInfo m!"[PASS-THROUGH] `{constName}` transports `{type}` without eliminating it."
+                  return count + 1
+                else return count
+              else return count
+        | none => return pt
 
-    logInfo m!"Audit complete: {vacuousCount} vacuous definitions, {passThroughCount} pass-through carriers."
+      return (vac', pt')
+
+  logInfo m!"Audit complete: {vacuousCount} vacuous definitions, {passThroughCount} pass-through carriers."
 
 end ScaffoldingAudit
