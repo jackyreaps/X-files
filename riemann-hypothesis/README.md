@@ -35,6 +35,7 @@ A machine-checked challenge isolating the **Continuum Gap**: the structural and 
 | `ContinuumGapChallenge.lean` | Bare general case open (`challenge_lemma_general`, one `sorry`) |
 | `ThetaConstraints.lean` | Theta-sharpened obligation (`challenge_lemma_theta_layering`, one `sorry`) and exact literature stubs |
 | `Disproof.lean` | Constructs the explicit violating countermodel proving the classical interface is insufficient (no `sorry`) |
+| `COUNTERMODEL.md` | Human-readable explanation of the formal Davenport-Heilbronn countermodel |
 | `FormalObstruction.lean` | Closes the comparison for the vacuous case (no `sorry`) |
 | `LivePathExtraction.lean` | Primary-source extraction of the 8-edge path |
 | `DependencyConfirmed.lean` | Public graph evidence and vacuity proof |
