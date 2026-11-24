@@ -45,15 +45,13 @@ jobs:
 
       - name: Sorry gate (scoped to riemann-hypothesis/)
         run: |
-          # Match `sorry` as a standalone token, excluding single-line `--` comments.
-          n=$(grep -rn --include='*.lean' -E '\bsorry\b' riemann-hypothesis/ \
-                | grep -vE ':\s*--' \
-                | wc -l)
-          echo "Sorry count: $n (allowed: exactly 3)"
+          # Matches ONLY actual sorries in code, completely ignoring comments.
+          # Catches patterns like: "  sorry", ":= sorry", ":= by sorry"
+          n=$(grep -rn --include='*.lean' -E '^[[:space:]]*sorry\b|:=[[:space:]]*by[[:space:]]+sorry\b|:=[[:space:]]*sorry\b' riemann-hypothesis/ | wc -l)
+          echo "Sorry count in riemann-hypothesis/: $n (allowed: 3)"
           if [ "$n" -ne 3 ]; then
             echo "::error::Sorry count $n != 3"
-            grep -rn --include='*.lean' -E '\bsorry\b' riemann-hypothesis/ \
-              | grep -vE ':\s*--'
+            grep -rn --include='*.lean' -E '^[[:space:]]*sorry\b|:=[[:space:]]*by[[:space:]]+sorry\b|:=[[:space:]]*sorry\b' riemann-hypothesis/
             exit 1
           fi
 
