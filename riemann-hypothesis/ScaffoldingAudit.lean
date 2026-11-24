@@ -4,10 +4,11 @@
   A structural linter for Lean 4. 
   Identifies vacuous geometry and pass-through transport in 
   ultra-large formalizations.
+  
+  Core metaprogramming only. No Mathlib.Tactic dependency required.
 -/
 
 import Lean
-import Mathlib.Tactic
 
 open Lean Elab Command Meta
 
@@ -52,7 +53,7 @@ partial def walkDependencyCone (env : Environment) (root : Name) :
               else
                 (d :: accQ, accV.insert d, accP.insert d curr)
           bfs (rest ++ nextQueue.reverse) nextVisited nextParents
-  bfs [root] (NameSet.empty.insert root) {}
+  bfs [root] ({} : NameSet) {}
 
 /-- Reconstructs the shortest path from `root` to `target` using `parents`. -/
 partial def reconstructPath (parents : Std.HashMap Name Name) (root target : Name) : List Name :=
@@ -66,7 +67,7 @@ partial def reconstructPath (parents : Std.HashMap Name Name) (root target : Nam
 /-- Checks if `fvarId` is used in `proofTerm` without ever being passed to an eliminator. -/
 def isPassThrough (env : Environment) (proofTerm : Expr) (fvarId : FVarId) : Bool :=
   let (_, (uses, eliminated)) := StateT.run (m := Id) (s := (0, false)) do
-    proofTerm.forEach fun e => do
+    ForEachExpr.forEach proofTerm fun e => do
       match e with
       | .fvar id =>
         if id == fvarId then
