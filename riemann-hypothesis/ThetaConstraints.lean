@@ -24,6 +24,7 @@
   Kernel acceptance of archive riemannHypothesis is UNAFFECTED.
 -/
 
+import Mathlib.Data.Complex.Basic
 import Mathlib.Data.Real.Basic
 import Mathlib.Data.List.Basic
 import Mathlib.Order.Basic
@@ -95,7 +96,7 @@ namespace GlobalTheory.CovTop
   def CovolumeBoundOfX : Prop := True
 end GlobalTheory.CovTop
 
-/-- Named archive targets for the three theta-constraint roles
+/- Named archive targets for the three theta-constraint roles
     (BoundAtTwoThreeFamilyFonAlt, ThetaLocalInputs package, VWin+green).
     Kept as Props so X-files does not import the 17M-line archive. -/
 namespace ArchiveTargets
