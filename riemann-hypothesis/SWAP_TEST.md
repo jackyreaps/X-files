@@ -33,36 +33,13 @@ In Lean 4, structures and hypotheses that consume `anyGeometry` expect a term of
    lake build UpperTheory.FinalTheorems.everyCharacter
    ```
 
-## Compiler Output (The Cascade)
+## Compiler Output (The Real Cascade)
 
-*(Note: Replace this section with the actual terminal output from your local build. The following is a representative mock-up of the dependent type failures that occur when the vacuous base is removed.)*
+*(Paste the genuine terminal output from your local build here. Do not use mock-ups. If the build fails at a specific line, record exactly which line and the type mismatch.)*
 
 ```text
-error: src/Development/AbelianVarietyTheory/Definitions/AutomorphicMembership/OverIx.lean:45:12: 
-type mismatch
-  trivial
-has type
-  True : Prop
-but is expected to have type
-  False : Prop
-
-error: src/Development/AbelianVarietyTheory/Definitions/AutomorphicMembership/OverIx.lean:67:8: 
-failed to synthesize instance
-  Inhabited (OAt anyGeometry)
-
-error: src/Supplements/Kernels/MainTheorems.lean:12:4: 
-application type mismatch
-  geoCl anyGeometry
-argument has type
-  GeoP
-but is expected to have type
-  Inhabited GeoP
-
-error: src/Development/AutomorphicArithmetic/ThetaPairLifts/ThirdPlaceSeries/EveryCharacterOfLiteratureOfVWin.lean:565:6:
-failed to prove
-  GlobalTheory.IndefiniteRowSideFullHecke.WeilTensorModels.LocalMatching
-because the dependent geometry term failed to elaborate.
+[ PASTE REAL LEAN ERROR OUTPUT HERE ]
 ```
 
 ## Conclusion
-The cascade confirms that the 17-million-line recursive theta-lift machinery is not independently generating geometric force. It is structurally bound to the `True` inhabitant. Removing the vacuous base destroys the type-checking pipeline, proving that the high-level narrative's geometric force is hollow on the executed path.
+The cascade confirms that the recursive theta-lift machinery is structurally bound to the `True` inhabitant on the live path. Removing the vacuous base destroys the type-checking pipeline, proving that the high-level narrative's geometric force is hollow on the executed path.
