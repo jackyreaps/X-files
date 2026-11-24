@@ -1,16 +1,32 @@
 /-
   Disproof.lean
   ---------------------------------------------------------------
-  The Countermodel Obligation.
+  Countermodel against the classical interface that remains after
+  the geometric payload is dropped.
 
-  This file constructs the "Davenport-Heilbronn style" countermodel
-  against the exact interface of the archive.
+  Live-path geometry drop-off (archive commit 40e56bab)
+  ----------------------------------------------------
+  The constant-True predicate `anyGeometry` sits 8 dependency edges
+  below `riemannHypothesis`. The terminal edge is:
 
-  It proves that if the classical hypotheses (hA, hM, hX) do not
-  impose additional structural restrictions on the mass, the
-  challenge lemma is mathematically FALSE.
+    every_character_of_theta_integrals_local_matching
+      → parametersOfDependence
+      → anyGeometry
 
-  Date: 2026-11-23
+  After `parametersOfDependence` the geometric payload is never
+  inspected again on the live path. The recursive theta-layering
+  apparatus therefore functions as a structural carrier for a
+  vacuous `GeoP` inhabitant. The analytic force that continues is
+  supplied by the classical literature package that discharges
+  hA / hM / hX.
+
+  This file constructs an explicit countermodel against that
+  classical interface: it satisfies the discharged literature
+  hypotheses while violating any RH-strength multiplicity bound.
+  The kernel remains sound; the geometric narrative on the
+  executed path does not match the active dependency.
+
+  Date: 2026-11-23 (edge extraction 2026-11-24)
 -/
 
 import ThetaConstraints
@@ -26,9 +42,11 @@ def C : ClassicalAnalyticData where
   afe := { windowLength := 1, errorBound := 1, window_pos := by norm_num, error_nonneg := by norm_num }
   weakDensity := True
 
-/-- A violating theta-lift multiplicity. 
-    It satisfies the exact archive hypotheses (hA, hM, hX), but
-    completely ignores them to produce a mass of 100. -/
+/-- Countermodel against the classical interface that remains
+    after the geometry is dropped at
+    `parametersOfDependence → anyGeometry`.
+    Satisfies the archive hypotheses (hA, hM, hX) while producing
+    a mass that violates the classical bound. -/
 def fakeMultiplicity : ThetaLiftMultiplicity where
   window := 1
   mass_raw := 100
@@ -59,10 +77,11 @@ theorem countermodel_violates_bound :
 theorem disproof_obligation_holds : DisproofObligation C :=
   ⟨fakeMultiplicity, countermodel_violates_bound⟩
 
-/-- **The Disproof.** 
-    If the theta-layering does not supply extra constraints (i.e. 
-    if hA, hM, and hX are just the classical literature bounds),
-    then `challenge_lemma_theta_layering` is FALSE. -/
+/-- **The Disproof.**
+    If the theta-layering does not supply extra constraints beyond
+    the classical literature bounds that remain after the geometry
+    is dropped at `parametersOfDependence → anyGeometry`, then
+    `challenge_lemma_theta_layering` is FALSE. -/
 theorem challenge_lemma_false :
     ¬ (∀ (ms : List ThetaLiftMultiplicity) (C : ClassicalAnalyticData),
         thetaLiftMultiplicity_bounded ms C) := by
