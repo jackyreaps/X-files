@@ -56,7 +56,7 @@ def fakeMultiplicity : ThetaLiftMultiplicity where
   boundary := C.boundary
   hA := trivial
   hM := trivial
-  hX := trivial
+  hX := ⟨100, by norm_num, le_rfl⟩
   slope_bound_holds := True
   relative_trace_holds := True
   character_avg_holds := True
