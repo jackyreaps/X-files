@@ -1,11 +1,20 @@
 /-
   Disproof.lean
   ---------------------------------------------------------------
-  The Countermodel Obligation.
+  Countermodel obligation against challenge_lemma_theta_layering.
 
-  Constructs `fakeMultiplicity` satisfying the exact non-trivial 
-  analytic signatures of the classical boundary, while violating 
-  the required multiplicity bound.
+  fakeMultiplicity carries:
+    - literature hA / hM (True stubs, as on the live path discharge)
+    - classical hX
+    - the three archive-named constraints (slope / relative-trace /
+      character-avg) set to True
+    - vacuous geometry marker
+  and still produces surviving mass far above the classical bound.
+
+  This shows: literature + named archive constraint *slots* alone do
+  not force the multiplicity bound. Closing the open sorry therefore
+  requires real force from those constraints, not merely inhabiting
+  the Props as True.
 -/
 
 import ThetaConstraints
@@ -15,7 +24,6 @@ open ThetaConstraints
 
 namespace Disproof
 
-/-- The classical package with real analytic signatures. -/
 def C : ClassicalAnalyticData where
   boundary := {
     reflectionLaw := fun _ => True
@@ -29,10 +37,8 @@ def C : ClassicalAnalyticData where
   }
   weakDensity := True
 
-/-- A violating theta-lift multiplicity. 
-    It satisfies the exact literature hypotheses (hA, hM, hX), and
-    the non-trivial analytic boundary, but completely ignores them 
-    to produce a mass of 100. -/
+/-- Violating multiplicity: all live-path hypothesis slots hold (as True),
+    mass = 100 ≫ classical window+error. -/
 def fakeMultiplicity : ThetaLiftMultiplicity where
   window := 1
   mass_raw := 100
@@ -51,22 +57,22 @@ def fakeMultiplicity : ThetaLiftMultiplicity where
   hA := trivial
   hM := trivial
   hX := trivial
+  slope_bound_holds := True
+  relative_trace_holds := True
+  character_avg_holds := True
   geo_vacuous := True
 
-/-- Proof that the surviving mass exceeds the classical bound. -/
 theorem countermodel_violates_bound :
     survivingMass fakeMultiplicity.toLiftMultiplicity
       > C.boundary.errorBound + C.boundary.windowLength := by
   simp [survivingMass, fakeMultiplicity, C]
   norm_num
 
-/-- The Disproof Obligation is satisfied for our classical package. -/
 theorem disproof_obligation_holds : DisproofObligation C :=
-  ⟨fakeMultiplicity, countermodel_violates_bound⟩
+  ⟨fakeMultiplicity, trivial, trivial, trivial, countermodel_violates_bound⟩
 
-/-- **The Disproof.** 
-    If the theta-layering does not supply extra constraints, then 
-    `challenge_lemma_theta_layering` is FALSE. -/
+/-- If challenge_lemma_theta_layering is stated for arbitrary lists
+    with no restriction beyond the structure fields, it is false. -/
 theorem challenge_lemma_false :
     ¬ (∀ (ms : List ThetaLiftMultiplicity) (C : ClassicalAnalyticData),
         thetaLiftMultiplicity_bounded ms C) := by
