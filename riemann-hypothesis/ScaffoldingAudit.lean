@@ -4,14 +4,10 @@
   A structural linter for Lean 4. 
   Identifies vacuous geometry and pass-through transport in 
   ultra-large formalizations.
-  
-  The Lean kernel guarantees axiomatic validity, but it does not 
-  verify architectural intent. This tool walks the live dependency 
-  cone, normalizes types, and checks for degenerate witnesses (e.g., 
-  definitions that evaluate to `True`) and pass-through payloads.
 -/
 
 import Lean
+import Mathlib.Tactic
 
 open Lean Elab Command Meta Std
 
@@ -31,8 +27,7 @@ def isVacuousDef (info : ConstantInfo) : MetaM Bool := do
       return body'.isConstOf ``True
   | _ => return false
 
-/-- BFS over the live dependency cone from `root`.
-    Returns `(visitedSet, parentMap)` so shortest paths can be reconstructed. -/
+/-- BFS over the live dependency cone from `root`. -/
 partial def walkDependencyCone (env : Environment) (root : Name) :
     NameSet × Std.HashMap Name Name :=
   let rec bfs (queue : List Name) (visited : NameSet) (parents : Std.HashMap Name Name) :
@@ -69,22 +64,31 @@ partial def reconstructPath (parents : Std.HashMap Name Name) (root target : Nam
   go target []
 
 /-- Checks if `fvarId` is used in `proofTerm` without ever being passed to an eliminator. -/
-def isPassThrough (env : Environment) (proofTerm : Expr) (fvarId : FVarId) : Bool := Id.run do
+def isPassThrough (env : Environment) (proofTerm : Expr) (fvarId : FVarId) : Bool :=
   let mut uses := 0
   let mut eliminated := false
-  proofTerm.forEach fun e =>
+  -- Use a recursive visitor to safely handle mutability
+  let rec visit (e : Expr) : Unit :=
     match e with
     | .fvar id =>
       if id == fvarId then uses := uses + 1
-    | .app _ _ =>
-      let fn := e.getAppFn
-      if let .const fnName _ := fn then
+    | .app fn arg =>
+      let head := fn.getAppFn
+      if let .const fnName _ := head then
         let s := fnName.toString
         if env.isRec fnName || s.endsWith ".rec" || s.endsWith ".casesOn" || fnName == ``False.elim then
-          if e.getAppArgs.any (fun arg => arg.containsFVar fvarId) then
+          if arg.hasFVar fvarId || fn.hasFVar fvarId then
             eliminated := true
+      visit fn
+      visit arg
+    | .lam _ _ b _ => visit b
+    | .forallE _ _ b _ => visit b
+    | .letE _ _ v b _ => visit v; visit b
+    | .mdata _ b => visit b
+    | .proj _ _ b => visit b
     | _ => pure ()
-  return uses > 0 && !eliminated
+  visit proofTerm
+  uses > 0 && !eliminated
 
 elab "#audit_theorem " target:ident : command => do
   let env ← getEnv
