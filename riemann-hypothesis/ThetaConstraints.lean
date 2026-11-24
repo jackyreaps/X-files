@@ -92,8 +92,11 @@ namespace GlobalTheory.IndefiniteRowSideFullHecke.WeilTensorModels
 end GlobalTheory.IndefiniteRowSideFullHecke.WeilTensorModels
 
 namespace GlobalTheory.CovTop
-  /-- Live-path hX. Classical eventual L³ bound (LiftLambdaBound). -/
-  def CovolumeBoundOfX : Prop := True
+  /-- Existential `C0 ≥ 0` eventual `L3` bound coupled to `surviving`.
+      Even when `surviving ≤ C0`, an existential `C0` does not force
+      `C0 ≤ errorBound + windowLength`. -/
+  def CovolumeBoundOfX (surviving : ℝ) : Prop :=
+    ∃ C0 : ℝ, 0 ≤ C0 ∧ surviving ≤ C0
 end GlobalTheory.CovTop
 
 /- Named archive targets for the three theta-constraint roles
@@ -139,7 +142,7 @@ structure ThetaLiftMultiplicity extends LiftMultiplicity where
   boundary : ClassicalBoundaryPackage
   hA : GlobalTheory.IndefiniteRowSideFullHecke.WeilTensorModels.ThetaIntegralsAgree
   hM : GlobalTheory.IndefiniteRowSideFullHecke.WeilTensorModels.LocalMatching
-  hX : GlobalTheory.CovTop.CovolumeBoundOfX
+  hX : GlobalTheory.CovTop.CovolumeBoundOfX (survivingMass toLiftMultiplicity)
   /-- Archive: BoundAtTwoThreeFamilyFonAlt -/
   slope_bound_holds : Prop
   /-- Archive: ThetaLocalInputs / Weil local-analytic package -/
@@ -212,7 +215,7 @@ def vacuousTheta (C : ClassicalAnalyticData) : ThetaLiftMultiplicity where
   boundary := C.boundary
   hA := (theta_integrals_agree_and_local_matching_of_literature).1
   hM := (theta_integrals_agree_and_local_matching_of_literature).2
-  hX := trivial
+  hX := ⟨0, le_rfl, le_rfl⟩
   slope_bound_holds := True
   relative_trace_holds := True
   character_avg_holds := True
