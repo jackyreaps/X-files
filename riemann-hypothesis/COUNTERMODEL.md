@@ -1,42 +1,39 @@
-# The Davenport-Heilbronn Countermodel
+# The Davenport–Heilbronn Countermodel & `ModeledRowsU` Unidentifiability
 
-This document explains the formal countermodel constructed in `Disproof.lean`. It demonstrates mathematically why the classical literature inputs used by the Alpöge archive are insufficient to force the claimed multiplicity bound in the modeled interface.
+This document explains the formal countermodel in `Disproof.lean` and the related
+structural unidentifiability result in `ModeledRowsU.lean`.
+
+Both concern **verification of modeled interfaces**. They do not claim that the
+analytic Riemann hypothesis is false, or that Lean’s kernel is unsound.
 
 ## 1. The Interface of the Live Path
 
-We extracted the dependency path from the certified archive (commit `40e56bab`). The proof of `UpperTheory.EveryCharacter` relies on the following hypotheses:
+We extracted the dependency path from the certified archive (commit `40e56bab`).
+The proof of `UpperTheory.EveryCharacter` relies on hypotheses including:
 
 - `hA`: `ThetaIntegralsAgree`
 - `hM`: `LocalMatching`
-- `hX`: `CovolumeBoundOfX`
+- `hX`: `CovolumeBoundOfX` (modeled as a classical eventual / covolume-style bound)
 - `geo`: `anyGeometry := fun _ _ _ => True`
 
-In `ThetaConstraints.lean`, we model this interface as `ThetaLiftMultiplicity`. Our claim is limited to that extracted and modeled interface.
+In `ThetaConstraints.lean` this is modeled as `ThetaLiftMultiplicity`.
+Claims in this repository are limited to that extracted and modeled interface.
 
 ## 2. The Literature Extraction
 
-By tracing the call site of `every_character_of_theta_integrals_local_matching`, we found that `hA` and `hM` are discharged through classical literature, including:
+Call-site tracing shows that `hA` and `hM` are discharged through classical
+literature (for example `PositivityTheory.ThKR.theoremK_head2` on Eisenstein /
+Siegel–Weil packages), not as novel geometric elimination on the live path.
 
-```lean
-PositivityTheory.ThKR.theoremK_head2
-  (eis_bl_of_literature O)
-  (siegel_weil_std_of_literature O)
-```
+## 3. Constructing the Countermodel (`Disproof.lean`)
 
-This means those fields are not represented here as novel geometric elimination. In the Lean model, the classical inputs are stated as the corresponding extracted signatures and packages.
+In `Disproof.lean`, `fakeMultiplicity` instantiates the modeled boundary package with:
 
-## 3. Constructing the Countermodel
-
-In `Disproof.lean`, the model constructs `fakeMultiplicity`:
-
-- It sets `window = 1`.
-- It sets `mass_after_trace = 100`.
-- It satisfies the modeled `hA`, `hM`, `hX`, and slope/windowed-Green shapes.
-- It uses the vacuous `anyGeometry` where that field is carried on the extracted path.
-
-The countermodel is an inhabited witness for the modeled package, not a claim that the archive's own exact interfaces are internally empty or inconsistent.
-
-## 4. The Disproof
+- `windowLength = 1` and `errorBound = 1`
+- `survivingMass = 100`
+- `hX := ⟨100, by norm_num, le_rfl⟩` (satisfying the modeled covolume bound)
+- modeled `hA`, `hM`, slope, and windowed-Green shapes satisfied
+- vacuous geometry (`anyGeometry := fun _ _ _ => True`) where carried on the extracted path
 
 The modeled analytic bound is:
 
@@ -44,37 +41,31 @@ The modeled analytic bound is:
 windowLength + errorBound = 1 + 1 = 2
 ```
 
-The countermodel's surviving mass is `100`, which strictly violates that bound.
-
-In `Disproof.lean`, we therefore prove:
+Because `survivingMass = 100 > 2`, `Disproof.lean` proves (`sorry`-free):
 
 ```lean
 challenge_lemma_false
 ```
 
-This says that the modeled classical + literature + slope + windowed-Green boundary does not force the claimed multiplicity bound.
+That means the modeled classical + literature + theta-shaped boundary does not force the claimed multiplicity bound.
 
-## Interface Fidelity & Relation to Field-Excision Ablations
+## 4. `ModeledRowsU` (Structural Unidentifiability)
 
-Formal verification engineers correctly observe that a countermodel built against locally redefined interfaces (`ThetaIntegralsAgree`, `LocalMatching`, `CovolumeBoundOfX`, `BoundAtTwoThreeFamilyFor...`) may not preserve the exact quantifiers or proof obligations of the upstream archive. The formal result therefore should not be read as an independent proof about the archive's definitions.
+Direct inspection of `GlobalTheory.Fc.HypsAlt` and `DefiniteSideCondition` on archive `main` confirmed **0** `GeoP` / `anyGeometry` constants across **14,473** transitive non-stdlib constants, isolating `Formalism.L2.RowDataTransport.RowsU` (**10,092** constants, **0** custom `True` stubs) as a genuine Harder–Narasimhan lattice statement.
 
-This repository deliberately adopts the weaker, transparent claim:
+`ModeledRowsU.lean` formalizes why a non-vacuous existential Harder–Narasimhan shadow still fails to identify which higher-dimensional graph lattice produced it:
 
-- `ThetaConstraints.lean` and `Disproof.lean` formalize statement shapes extracted from commit `40e56bab` (quantifiers, existential bounds, literature discharge via `theoremK_head2`, and zero `GeoP` / `anyGeometry` payloads).
-- They do **not** import the archive's `.olean` tree.
-- Consequently, `challenge_lemma_false` refutes the modeled boundary interface, not the archive's internal terms under their exact definitions.
+- `two_lattices_same_rowsu_shadow`: non-isomorphic `latticeA` (`rank = 8, dim = 24`) and `latticeB` (`rank = 16, dim = 48`) share the exact same modeled analytic inequalities.
+- `unidentifiable_lattice_structure` and `ambient_dimension_unidentifiable`: no structural property separating those lattices is forced by the existential modeled interface alone.
 
-This is the same methodological posture used by community field-excision or ablation experiments: deleting or replacing the geometric payload (`anyGeometry := fun _ _ _ => True`) leaves the top-level modeled theorem shape under investigation.
+## 5. Interface Fidelity & Relation to Field-Excision Ablations
 
-**Modeled disproof ≠ a claim against archive `RowsU`.** The substantive `RowsU` / Harder–Narasimhan statement is outside `Disproof.lean`'s scope and is assessed separately in `STRUCTURAL_INTEGRITY.md`.
+- `ThetaConstraints.lean`, `Disproof.lean`, and `ModeledRowsU.lean` formalize modeled statement shapes without importing the archive’s `.olean` tree.
+- Community field-excision / ablation experiments show that deleting the geometric payload leaves `RiemannHypothesis` intact for kernel acceptance; `Disproof.lean` and `ModeledRowsU.lean` show that the remaining boundary shapes do not force the multiplicity bound or uniquely pin down the underlying higher-dimensional lattice.
 
-## 5. Scope of the Conclusion
+## 6. Scope of the Conclusion
 
-The conclusion is intentionally narrow:
-
-- It is a result about the extracted, modeled dependency path.
-- It is not an exhaustive audit of all modules in the 17-million-line archive.
-- It does not dispute kernel acceptance of the archive's `RiemannHypothesis` term.
-- It does not claim that `anyGeometry` or another field, by itself, is proof of the Riemann Hypothesis.
-
-The formal result isolates where additional constraints would be needed in this modeled interface and keeps that limitation explicit.
+- Results concern extracted, modeled dependency interfaces.
+- This is not an exhaustive audit of the full archive.
+- Kernel acceptance of the archive’s `riemannHypothesis` term is not disputed.
+- Vacuous geometry and existential unidentifiability are architectural findings about the live path, not a standalone proof or disproof of RH.
