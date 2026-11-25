@@ -8,7 +8,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: leanprover-community/riemann-hypothesis
-          ref: original
+          ref: main
           fetch-depth: 1
 
       - uses: leanprover/lean-action@v1
@@ -16,10 +16,18 @@ jobs:
           use-github-cache: false
           build: false
 
-      - name: Build target modules and run #print probe
+      - name: Cache .lake/build
+        uses: actions/cache@v4
+        with:
+          path: .lake/build
+          key: probe-olean-${{ github.sha }}
+          restore-keys: |
+            probe-olean-
+
+      - name: Fetch cache and run #print probe
         run: |
           lake exe cache get || true
-          lake build \
+          lake build --no-build || lake build \
             Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition \
             Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
           cat << 'EOF' > DirectImportHypsAlt.lean
