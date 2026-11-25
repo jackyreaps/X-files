@@ -1,0 +1,19 @@
+name: Probe HypsAlt
+on: workflow_dispatch
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 40e56bab
+      - uses: leanprover/lean-action@v1
+        with:
+          use-github-cache: false
+          build: false
+      - run: |
+          lake exe cache get
+          lake build --no-build
+          printf 'import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition\nimport Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps\n#print GlobalTheory.Fc.HypsAlt\n#print GlobalTheory.Fc.DefiniteSideCondition\n' > DirectImportHypsAlt.lean
+          lake env lean DirectImportHypsAlt.lean
