@@ -1,4 +1,5 @@
 import Mathlib.Data.Rat.Defs
+import Mathlib.Data.Fintype.Card
 import Mathlib.Tactic.NormNum
 import ScaffoldingAudit
 
