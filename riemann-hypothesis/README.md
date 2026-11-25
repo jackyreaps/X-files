@@ -3,6 +3,20 @@
 **Status:** Lean-verified formal disproof that the classical + literature + theta-shaped boundary interfaces (extracted from commit `40e56bab`, with vacuous geometry dropped) are insufficient to force the claimed multiplicity bound.  
 **Last update:** 2026-11-24
 
+## Additional verification status
+
+| File | Status | Role |
+| :--- | :--- | :--- |
+| `riemann-hypothesis/Disproof.lean` | **Complete (`sorry`-free)** | Proves `challenge_lemma_false`, constructing a concrete boundary realization (`survivingMass = 100 > 2`) that satisfies the modeled classical + literature + vacuous-geometry constraints while violating the claimed multiplicity bound. |
+| `riemann-hypothesis/ModeledRowsU.lean` | **Complete (`sorry`-free)** | Proves `two_lattices_same_rowsu_shadow`, `unidentifiable_lattice_structure`, and `ambient_dimension_unidentifiable`, showing that non-isomorphic higher-dimensional graph lattices (`rank = 8, dim = 24` vs. `rank = 16, dim = 48`) share the same non-vacuous Harder–Narasimhan analytic shadow. |
+| `riemann-hypothesis/ScaffoldingAudit.lean` | **Complete (`sorry`-free)** | Zero-dependency Lean 4 metaprogramming tool (`import Lean` only) providing `#audit_theorem`, which traces transitive dependency cones and reports definitions whose bodies peel to the syntactic constant `True` (a review lead, not a verdict of unsoundness). |
+| `riemann-hypothesis/ScaffoldingAuditDemo.lean` | **Complete (`sorry`-free)** | Self-contained 1-second demonstration of `#audit_theorem` running on a minimal layered witness with a vacuous `True` invariant. |
+| `riemann-hypothesis/ThetaConstraints.lean` | **Modeled boundary (`1 sorry` placeholder)** | Formalizes the extracted live-path statement shapes (`ThetaIntegralsAgree`, `LocalMatching`, `CovolumeBoundOfX`, `anyGeometry := fun _ _ _ => True`). |
+| `riemann-hypothesis/COUNTERMODEL.md` | **Documentation** | Walkthrough of `Disproof.lean`, `ModeledRowsU.lean`, interface fidelity, and scope boundaries. |
+| `riemann-hypothesis/STRUCTURAL_INTEGRITY.md` | **Documentation** | Bottom-to-top architectural audit of commit `40e56bab` and archive `main` (`TopPlug.lean` 19-line bottleneck, `HypsAlt` zero-`GeoP` cone of 14,473 constants, and `RowsU` Harder–Narasimhan content audit). |
+| `META_VERIFICATION.md` | **Documentation** | Note on the meta-layer verification gap (`P ∧ True` / proof irrelevance / `.olean` replay anomalies such as `leanprover/lean4#16730` and `#14576`). |
+| `RECURSIVE_TOPOLOGY_PARADOX.md` | **Documentation** | Conceptual synthesis of the "looks true" paradox in recursive topology, linking internal type consistency to the three `sorry`-free Lean modules. |
+
 > **Formal Status.** This repository contains a **`sorry`-free, Lean 4 kernel-verified disproof** (`Disproof.challenge_lemma_false`) showing that the classical and literature boundary interfaces extracted from commit `40e56bab`—once the vacuous geometry (`anyGeometry := fun _ _ _ => True`) is dropped—do not logically imply the claimed theta-lift multiplicity bound.
 >
 > **What this does *not* claim.** This repository does **not** claim that Mathlib’s `RiemannHypothesis` is false, nor does it dispute that Lean’s kernel accepted a term of type `RiemannHypothesis` in the target archive. It refutes the *sufficiency of the extracted/modeled live-path boundary interface*. The non-vacuous general case remains explicitly open.
@@ -21,7 +35,7 @@ A machine-checked formal countermodel and architectural audit isolating the **Co
   - `hX` (`CovolumeBoundOfX`, `GlobalTheory.CovTop`) is modeled as an existential eventual $L^3$ covolume bound coupled to surviving mass (`∃ C0 ≥ 0, survivingMass ≤ C0`). Because `C0` is existentially quantified rather than bounded by `errorBound + windowLength`, `fakeMultiplicity` satisfies `hX` with `C0 = 100` while violating the RH-strength bound (`100 > 2`).
   - `BoundAtTwoThreeFamilyFonAlt` (`…/BoundAtTwoThreeFamilyFon.lean`) is an existential large-$x$ family bound (`∃ C x0, ∀ x ≥ x0, …`) with zero `GeoP` dependence.
   - `DefiniteSideCondition` (`…/DefiniteSideCondition.lean`) and `VWin` + `green_of_regular` (`…/TopPlug.lean`) carry the analytic definite-side and windowed Green positivity bridge with zero `GeoP` references.
-- **Extracted Upper Bottleneck (`TopPlug.lean`).** Auditing the extracted path above `nonempty_hyps_definite_side_of_closed_bound` confirms that `every_character_of_green_v_win` (`TopPlug.lean`, 19 lines) makes zero reference to `GeoP` or `anyGeometry`: the lower geometric tower enters `TopPlug.lean` only through a single existential witness `Nonempty (HypsAlt ... DefiniteSideCondition)`.
+- **Extracted Upper Bottleneck (`TopPlug.lean`).** Auditing the extracted path above `nonempty_hyps_definite_side_of_closed_bound` confirms that `every_character_of_green_v_win` (`TopPlug.lean`, 19 lines) makes zero reference to `GeoP` or `anyGeometry`: the lower geometric tower enters `TopPlug.lean` only through a single existential witness `Nonempty (HypsAlt … DefiniteSideCondition)`.
 - **Verified interface disproof (`Disproof.lean`).** Instantiating `ThetaConstraints.lean` with faithful statement shapes for all extracted live-path interfaces admits a `sorry`-free countermodel (`fakeMultiplicity`, surviving mass `100 > errorBound + windowLength = 2`), proving `Disproof.challenge_lemma_false`.
 - **Swap test versus non-empty countermodel.** Setting `anyGeometry := False` empties the filtered object collection, breaking downstream `Nonempty` obligations while reducing universal claims over the empty collection to vacuous truth (documented as an architectural observation in `SWAP_TEST.md`). Conversely, `Disproof.lean` evaluates the multiplicity bound on the non-empty singleton containing `fakeMultiplicity`, proving that even with an inhabited witness satisfying every extracted constraint, the multiplicity bound fails.
 
