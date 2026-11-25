@@ -1,0 +1,63 @@
+/-
+  DirectImportHypsAlt.lean.template
+
+  Reproducibility template for a direct-import probe against a checkout of
+  leanprover-community/riemann-hypothesis at commit 40e56bab (or a compatible
+  revision). This is intentionally a `.lean.template` file, not a build target
+  in this repository. Do not add the archive imports to X-files' lakefile.
+
+  In the mirror checkout, copy this file to DirectImportHypsAlt.lean, then run:
+
+      lake exe cache get
+      lake env lean DirectImportHypsAlt.lean > probe_output.txt 2>&1
+
+  The cache command is only needed if the mirror's prebuilt oleans are absent.
+  Module paths and Lean API details may need adjustment for the checked-out
+  revision. The dependency walk is diagnostic; it does not itself establish
+  that a type is underdetermined.
+-/
+
+import Lean
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
+import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.TopPlug
+
+open Lean Elab Command
+
+-- Print the exact elaborated declarations from the archive.
+#print GlobalTheory.Fc.HypsAlt
+#print GlobalTheory.Fc.DefiniteSideCondition
+#print GlobalTheory.Fc.D3
+#print Formalism.MainNotions.Closed
+
+-- Inspect the transitive constant dependency cone of TopPlug's theorem for
+-- names associated with geometry. This is a name-based diagnostic, not a proof
+-- that no indirect geometric content exists.
+#eval show CommandElabM Unit from do
+  let env ← getEnv
+  let target := `UpperTheory.Top.every_character_of_green_v_win
+  let some _info := env.find? target | do
+    IO.println "Target not found"
+    return
+  let mut visited : NameSet := {}
+  let mut queue : List Name := [target]
+  let mut geoHits : List Name := []
+  while !queue.isEmpty do
+    let curr :: rest := queue | break
+    queue := rest
+    if visited.contains curr then continue
+    visited := visited.insert curr
+    let nameString := curr.toString
+    if nameString.startsWith "Lean." || nameString.startsWith "Init." ||
+       nameString.startsWith "Std." || nameString.startsWith "Mathlib." then
+      continue
+    if nameString.contains "Geo" || nameString.contains "anyGeometry" then
+      geoHits := curr :: geoHits
+    if let some cinfo := env.find? curr then
+      let deps := cinfo.type.getUsedConstants.toList ++
+        (match cinfo.value? with
+         | some value => value.getUsedConstants.toList
+         | none => [])
+      queue := queue ++ deps.eraseDups
+  IO.println s!"Active non-stdlib constants above TopPlug: {visited.size}"
+  IO.println s!"Geo-related constants in TopPlug cone: {geoHits}"
