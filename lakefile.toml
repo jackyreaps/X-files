@@ -21,5 +21,6 @@ roots = [
   "DependencyConfirmed",
   "LivePathExtraction",
   "VacuousGeometryBridge",
-  "ContinuumGapCritique"
+  "ContinuumGapCritique",
+  "AlpogeObstruction"
 ]
