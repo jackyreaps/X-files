@@ -52,6 +52,7 @@ All closed theorems in `Disproof.lean` and `ScaffoldingAudit.lean` compile with 
 | `SWAP_TEST.md` | Architectural observation documenting the compiler cascade when `anyGeometry` is swapped to `False` |
 | `STRUCTURAL_INTEGRITY.md` | Architectural analysis of pass-through scaffolding in ultra-large formalizations |
 | `COUNTERMODEL.md` | Human-readable explanation of the formal Davenport–Heilbronn-style countermodel |
+| `ModeledRowsU.lean` | Sorry-free modeled structural unidentifiability: non-isomorphic lattices share the same modeled HN shadow; the existential interface does not recover rank or dimension (`two_lattices_same_rowsu_shadow`, `unidentifiable_lattice_structure`). This modeled result is not a claim about archive `RowsU` or that RH is false. |
 | `FormalObstruction.lean` | Closes the comparison for the vacuous case (no `sorry`) |
 | `LivePathExtraction.lean` | Primary-source extraction of the 8-edge path |
 | `DependencyConfirmed.lean` | Public graph evidence and vacuity proof |
