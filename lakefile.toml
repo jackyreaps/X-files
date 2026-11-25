@@ -13,6 +13,7 @@ roots = [
   "ContinuumGapChallenge",
   "ThetaConstraints",
   "Disproof",
+  "ModeledRowsU",
   "ScaffoldingAudit",
   "ScaffoldingAuditDemo",
   "FormalObstruction",
