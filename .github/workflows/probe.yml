@@ -1,9 +1,10 @@
-name: Probe HypsAlt
+name: Probe RowsU
 on: workflow_dispatch
 
 jobs:
   probe:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -16,38 +17,24 @@ jobs:
           use-github-cache: false
           build: false
 
-      - name: Cache .lake/build
-        uses: actions/cache@v4
-        with:
-          path: .lake/build
-          key: probe-olean-${{ github.sha }}
-          restore-keys: |
-            probe-olean-
-
-      - name: Fetch cache and run #print probe
+      - name: Fetch cache and inspect RowsU
         run: |
-          lake exe cache get || true
-          lake build --no-build || lake build \
-            Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition \
-            Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
-          cat << 'EOF' > DirectImportHypsAlt.lean
+          lake exe cache get
+          cat << 'EOF' > ProbeRowsU.lean
           import Lean
           import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition
-          import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
 
           open Lean Elab Command
 
-          #print GlobalTheory.Fc.HypsAlt
-          #print GlobalTheory.Fc.DefiniteSideCondition
-          #print GlobalTheory.Fc.D3
-          #print Formalism.MainNotions.Closed
+          #print Formalism.L2.RowDataTransport.RowsU
+          #print Formalism.L2.RowDataTransport.packageOfPrimitiveLinks
 
           #eval show CommandElabM Unit from do
             let env ← getEnv
-            let roots := [`GlobalTheory.Fc.HypsAlt, `GlobalTheory.Fc.DefiniteSideCondition]
+            let roots := [`Formalism.L2.RowDataTransport.RowsU]
             let mut visited : NameSet := {}
             let mut queue : List Name := roots
-            let mut geoHits : List Name := []
+            let mut trivialHits : List Name := []
             while !queue.isEmpty do
               let curr :: rest := queue | break
               queue := rest
@@ -56,13 +43,13 @@ jobs:
               let s := curr.toString
               if s.startsWith "Lean." || s.startsWith "Init." || s.startsWith "Std." || s.startsWith "Mathlib." then
                 continue
-              if s.contains "Geo" || s.contains "anyGeometry" then
-                geoHits := curr :: geoHits
               if let some cinfo := env.find? curr then
+                if cinfo.type == mkConst ``True || cinfo.value? == some (mkConst ``True) then
+                  trivialHits := curr :: trivialHits
                 let deps := cinfo.type.getUsedConstants.toList ++
                   (match cinfo.value? with | some v => v.getUsedConstants.toList | none => [])
                 queue := queue ++ deps.eraseDups
-            IO.println s!"Active non-stdlib constants in HypsAlt/DefiniteSideCondition cone: {visited.size}"
-            IO.println s!"Geo-related constants in cone: {geoHits}"
+            IO.println s!"RowsU non-stdlib cone size: {visited.size}"
+            IO.println s!"Direct True definitions in RowsU cone: {trivialHits}"
           EOF
-          lake env lean DirectImportHypsAlt.lean
+          lake env lean ProbeRowsU.lean
