@@ -73,6 +73,19 @@ forces `L = I(I;M) + I(J;M) − H(M)`. This is negative in general. For independ
 | `riemann-hypothesis/DirectImportHypsAlt.lean.template` | Optional archive-specific probe template; not part of the build |
 | `riemann-hypothesis/` | RH continuum-gap case study and supporting documentation |
 
+## Standalone Dependency-Cone Linter (`ScaffoldingAudit.lean`)
+
+`riemann-hypothesis/ScaffoldingAudit.lean` uses only Lean's built-in core library (`import Lean`)—no Mathlib or external archive files are needed.
+
+1. Copy `riemann-hypothesis/ScaffoldingAudit.lean` into any Lean 4 project.
+2. Import it and invoke `#audit_theorem` on any target theorem:
+   ```lean
+   import ScaffoldingAudit
+
+   #audit_theorem myTargetTheorem
+   ```
+3. `#audit_theorem` walks the theorem's transitive dependency cone and prints definitions whose bodies peel to the syntactic constant `True` (a review lead for manual inspection, not a verdict of unsoundness).
+
 ## Quick Reference
 
 Hierarchical Jacobian:
@@ -96,7 +109,7 @@ For monodromy built from unipotent Jacobians, `Hol_γ(Φ_Λ) = +1`; a sign `−1
 
 ## Meta-Layer Verification
 
-The repository's current `ScaffoldingAudit.lean` implementation accepts `#audit_theorem SomeNamespace.someTheorem`, traverses constants referenced by declaration values, and reports definitions whose lambda body is syntactically `True`. The self-contained example is in `riemann-hypothesis/ScaffoldingAuditDemo.lean`.
+The repository's current `ScaffoldingAudit.lean` implementation accepts `#audit_theorem SomeNamespace.someTheorem`, traverses constants referenced by declaration values, and reports definitions whose lambda bodies are syntactically `True`.
 
 The current checker does **not** implement shortest-path reporting, `whnf` normalization, pass-through analysis, mutual-inductive metadata checks, or a semantic judgment that a reported definition invalidates a theorem. Findings are diagnostic leads for manual review. See [`META_VERIFICATION.md`](META_VERIFICATION.md) for the scope, limitations, and broader audit goals.
 
@@ -118,4 +131,4 @@ The repository uses Lean v4.30.0, with Mathlib pinned in `lake-manifest.json`.
 lake build
 ```
 
-The configured build includes the `ScaffoldingAuditDemo` module so the example and the exact `#audit_theorem` syntax are checked by CI. The archive-specific `.template` probe is intentionally excluded from the build because its imports belong to the separate mirror repository.
+The configured build includes the `ScaffoldingAuditDemo` module so the example and the exact `#audit_theorem` syntax are checked by CI. The archive-specific `.template` probe is intentionally excluded from the build because it imports a separate mirror repository.
