@@ -7,13 +7,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 40e56bab
+          repository: leanprover-community/riemann-hypothesis
+          ref: original
+          fetch-depth: 1
+
       - uses: leanprover/lean-action@v1
         with:
           use-github-cache: false
           build: false
-      - run: |
+
+      - name: Download cache and run #print probe
+        run: |
           lake exe cache get
           lake build --no-build
-          printf 'import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition\nimport Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps\n#print GlobalTheory.Fc.HypsAlt\n#print GlobalTheory.Fc.DefiniteSideCondition\n' > DirectImportHypsAlt.lean
+          cat << 'EOF' > DirectImportHypsAlt.lean
+          import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition
+          import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
+
+          #print GlobalTheory.Fc.HypsAlt
+          #print GlobalTheory.Fc.DefiniteSideCondition
+          EOF
           lake env lean DirectImportHypsAlt.lean
