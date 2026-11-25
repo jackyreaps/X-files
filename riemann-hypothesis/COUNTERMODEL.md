@@ -1,6 +1,6 @@
 # The Davenport-Heilbronn Countermodel
 
-This document explains the formal countermodel constructed in `Disproof.lean`. It demonstrates mathematically why the classical literature inputs used by the Alpöge archive are insufficient to force the multiplicity bound at the modeled interface.
+This document explains the formal countermodel constructed in `Disproof.lean`. It demonstrates mathematically why the classical literature inputs used by the Alpöge archive are insufficient to force the claimed multiplicity bound in the modeled interface.
 
 ## 1. The Interface of the Live Path
 
@@ -56,15 +56,17 @@ This says that the modeled classical + literature + slope + windowed-Green bound
 
 ## Interface Fidelity & Relation to Field-Excision Ablations
 
-Formal verification engineers correctly observe that a countermodel built against locally redefined interfaces (`ThetaIntegralsAgree`, `LocalMatching`, `CovolumeBoundOfX`, `BoundAtTwoThreeFamilyFonAlt`, ...) does not automatically refute the archive's own Lean types unless the two interfaces are proven equivalent.
+Formal verification engineers correctly observe that a countermodel built against locally redefined interfaces (`ThetaIntegralsAgree`, `LocalMatching`, `CovolumeBoundOfX`, `BoundAtTwoThreeFamilyFor...`) may not preserve the exact quantifiers or proof obligations of the upstream archive. The formal result therefore should not be read as an independent proof about the archive's definitions.
 
 This repository deliberately adopts the weaker, transparent claim:
 
-- `ThetaConstraints.lean` and `Disproof.lean` formalize statement shapes extracted from commit `40e56bab` (quantifiers, existential bounds, literature discharge via `theoremK_head2`, and zero `GeoP` dependence after `parametersOfDependence → anyGeometry`).
+- `ThetaConstraints.lean` and `Disproof.lean` formalize statement shapes extracted from commit `40e56bab` (quantifiers, existential bounds, literature discharge via `theoremK_head2`, and zero `GeoP` / `anyGeometry` payloads).
 - They do **not** import the archive's `.olean` tree.
 - Consequently, `challenge_lemma_false` refutes the modeled boundary interface, not the archive's internal terms under their exact definitions.
 
-This is the same methodological posture used by community field-excision or ablation experiments: deleting or replacing the geometric payload (`anyGeometry := fun _ _ _ => True`) leaves the top-level type `RiemannHypothesis` intact. Those experiments show that the geometric field is not load-bearing for kernel acceptance. The present countermodel shows that the remaining classical + literature + slope + windowed-Green shapes, once the vacuous geometry is dropped, do not force the claimed multiplicity bound.
+This is the same methodological posture used by community field-excision or ablation experiments: deleting or replacing the geometric payload (`anyGeometry := fun _ _ _ => True`) leaves the top-level modeled theorem shape under investigation.
+
+**Modeled disproof ≠ a claim against archive `RowsU`.** The substantive `RowsU` / Harder–Narasimhan statement is outside `Disproof.lean`'s scope and is assessed separately in `STRUCTURAL_INTEGRITY.md`.
 
 ## 5. Scope of the Conclusion
 
