@@ -2,78 +2,64 @@
 
 **Author:** JackyReaps / AnooBus  
 **Repository:** https://github.com/jackyreaps/X-files  
-**Document status:** Formal methodological statement  
+**Document status:** Methodological discussion and evolving tooling notes  
 **Date:** 2026-11-25  
-**Companion artifacts:**  
-- `riemann-hypothesis/ScaffoldingAudit.lean` (reference implementation)  
-- `riemann-hypothesis/STRUCTURAL_INTEGRITY.md` (concrete case study)  
-- `riemann-hypothesis/Disproof.lean` (sorry-free interface countermodel)
+**Companion artifacts:**
+
+- `riemann-hypothesis/ScaffoldingAudit.lean` — current reference implementation
+- `riemann-hypothesis/ScaffoldingAuditDemo.lean` — small runnable example
+- `riemann-hypothesis/STRUCTURAL_INTEGRITY.md` — case-study analysis
+- `riemann-hypothesis/Disproof.lean` — modeled-interface countermodel
 
 ---
 
-## 1. The Problem: Type Convergence vs. Meta-Path Divergence
+## 1. Motivation: Theorem Types and Proof Architecture
 
-In dependent type theory (and Lean 4 specifically), the kernel’s Trusted Computing Base (TCB) is intentionally kept minimal. It checks that a proof term inhabits its target type under the standard axioms and treats any two proofs of the same proposition as definitionally indistinguishable (**proof irrelevance**).
+Lean's kernel verifies that a proof term has its declared type. That check is essential, but it does not by itself establish that the proof follows the intended mathematical narrative or that every field in a large interface carries substantive information. A proposition may be definitionally trivial, and a structure may transport such a proposition without using it to derive its main result.
 
-At human scale (hundreds or thousands of lines), mathematicians inspect intermediate definitions by eye to confirm that the proof term actually realizes the claimed mathematical mechanism. At **AI and multi-million-line scale**, human inspection collapses—exposing a systemic meta-layer blind spot:
+At large scale, these architectural questions can be difficult to inspect manually. Dependency tracing and targeted review can help identify definitions that deserve closer examination. They are diagnostic aids, not substitutes for checking the relevant definitions, theorem statements, and proof terms.
 
-1. **Infinite Hollow Wrappers.**  
-   Because \(P \land \mathsf{True} \leftrightarrow P\) is invisible to the kernel, any valid analytic or classical bridge \(P\) can be wrapped inside \(10\), \(1\,000\), or arbitrarily many layers of recursive structures parameterized by vacuous predicates (`fun _ _ _ => True`). Every such wrapper passes `lake build` as a valid proof of the exact same theorem.
+## 2. Current Reference Implementation
 
-2. **Narrative–Term Divergence.**  
-   Automated provers and large refactoring pipelines naturally take the path of least resistance—discharging difficult geometric or higher-dimensional interfaces with degenerate witnesses (`True`, `0`, empty domains) while leaving deep scaffolding towers intact. Top-level summaries continue to describe a geometric proof even when the active dependency cone has routed around it completely.
+`riemann-hypothesis/ScaffoldingAudit.lean` is a small Lean 4 command elaborator with `import Lean` as its only direct import. Its current command is:
 
-3. **Environment & Replay Surface (`leanprover/lean4#16730`).**  
-   As documented in the Lean 4 issue tracker, `.olean`-level replay checks can miss malformed mutual-inductive `InductiveVal` metadata (`numParams` / `numIndices` mismatches) that full `--from-export` / comparator replay catches. This demonstrates that standard build checks alone are insufficient for high-stakes certification.
+```lean
+#audit_theorem SomeNamespace.someTheorem
+```
 
----
+The implementation currently:
 
-## 2. Why Keeping the Kernel Small Requires Meta-Layer Auditing
+1. Walks a transitive dependency cone by following constants referenced in declaration values, while excluding names under selected standard-library prefixes.
+2. Inspects the discovered declarations for definitions whose lambda body, after peeling leading lambdas, is syntactically the constant `True`.
+3. Logs the number of visited declarations and the vacuous definitions it finds.
 
-Expanding Lean’s C++ kernel to police architectural intent would bloat the TCB and undermine trust in the checker itself. Closing the meta-layer gap therefore requires **deterministic, reproducible meta-programs** that inspect compiled `Environment` (`ConstantInfo`) graphs *outside* the kernel:
+The checker is intentionally modest. It does **not** currently compute shortest paths to a finding, normalize definitions with `whnf`, inspect pass-through hypotheses, analyze mutual-inductive metadata, or prove that a reported definition affects the mathematical conclusion. A reported constant is a review lead, not a verdict that a theorem is invalid or its proof is unsound. Conversely, failure to report a constant is not evidence that the dependency cone has no architectural issue.
 
-- **Dependency-Cone Vacuity Tracing.**  
-  Walk the transitive non-stdlib cone of a target theorem via BFS and normalize definitions under `whnf` / `lambdaTelescope` to expose constants that reduce to `True`.
+The runnable demonstration in `riemann-hypothesis/ScaffoldingAuditDemo.lean` defines a proposition that reduces syntactically to `True`, carries it through a structure, and invokes the implemented command on a theorem using that structure.
 
-- **Pass-Through Payload Detection.**  
-  Inspect proof terms (`ForEachExpr`) to verify whether intermediate lemmas actually eliminate a `Prop` hypothesis into non-trivial proof obligations, or merely transport it across structure constructors.
+## 3. Broader Audit Questions
 
-- **Boundary Countermodel Testing.**  
-  Extract the active non-vacuous interface along the live path and verify inside Lean (sorry-free) whether those hypotheses actually imply the claimed intermediate bound, or admit infinite families of violating realizations.
+The following are useful goals for a broader audit process, but are not implemented by the current linter unless explicitly added and tested:
 
-- **Inductive Metadata Consistency.**  
-  Check that mutual inductive blocks (`v.all.length > 1`) agree across sibling `numParams`, type arities, and constructor signatures.
+- **Dependency and vacuity analysis:** identify vacuous predicates and establish whether they occur on a relevant path.
+- **Pass-through payload analysis:** determine whether intermediate declarations merely transport hypotheses or use them in substantive obligations.
+- **Boundary countermodel testing:** test whether a clearly specified interface implies a claimed intermediate result.
+- **Inductive metadata checks:** inspect mutual inductive declarations and their stored metadata.
 
-These checks do not enlarge the kernel; they sit above it as an independent architectural linter.
+Each question requires separate implementation and validation. In particular, lexical name searches or a dependency list alone cannot certify semantic absence of a mathematical dependency.
 
----
+## 4. Case Study and Scope
 
-## 3. Reference Implementation & Case Study
+The `riemann-hypothesis/` materials document an audit of an extracted dependency path and a countermodel for a modeled interface. The countermodel's conclusions are limited to that modeled interface; it does not import the large archive's `.olean` tree or refute the archive's internal declarations under their exact definitions. See `riemann-hypothesis/COUNTERMODEL.md` for the interface-fidelity qualification.
 
-- **Architectural Linter** (`riemann-hypothesis/ScaffoldingAudit.lean`):  
-  A zero-Mathlib Lean 4 metaprogramming tool (`#audit_theorem`) implementing BFS dependency-cone walking, `whnf`-style vacuity detection, and pass-through tracking.
+This work does not assert that Lean's kernel is unsound, that a kernel-accepted term fails its stated type, or that a mathematical theorem is false. It motivates independent architectural review alongside kernel checking, while keeping the scope of each tool and formal result explicit.
 
-- **Live-Path Case Study** (`riemann-hypothesis/`):  
-  Applies this methodology to the extracted dependency path of `riemannHypothesis` at archive commit `40e56bab`. It pairs a sorry-free interface countermodel (`Disproof.challenge_lemma_false`) with an end-to-end architectural audit (`STRUCTURAL_INTEGRITY.md`).
+## 5. Verification and Use
 
-The case study demonstrates that a 17-million-line formalization can be kernel-accepted while its live geometric payload reduces to the constant predicate `fun _ _ _ => True`. The classical and literature boundary interfaces that remain are insufficient, by themselves, to force the claimed multiplicity bound.
+The demo is included in the repository's Lean library roots so `lake build` checks both the command and its example. In a checkout configured with the repository's pinned Lean toolchain and Mathlib dependency, run:
 
----
+```bash
+lake build
+```
 
-## 4. Scope and Non-Claims
-
-This document does **not** assert that Lean’s kernel is unsound, nor that any particular theorem statement in Mathlib is false.  
-
-It asserts only that:
-
-1. Proof irrelevance + definitional equality of \(P \land \mathsf{True}\) create an infinite family of hollow wrappers that the kernel cannot distinguish.
-2. At ultra-large scale, external, deterministic meta-auditing of the compiled dependency cone is required to certify that a proof realizes the mathematical mechanism it claims.
-3. The tools and methods listed above constitute one concrete, reproducible approach to that audit.
-
----
-
-## 5. Relation to the X-files Framework
-
-The meta-layer verification problem is independent of the Hierarchical Jacobian + Discrete Möbius Fold research programme that constitutes the main body of this repository. It is recorded here because the same formalization-scale phenomena appear in any large Lean development, and because the concrete RH audit provides a public, inspectable example of the methodology.
-
-Future work may integrate the scaffolding audit into the broader formalisation pipeline of the X-files project itself.
+For a standalone experiment, copy `ScaffoldingAudit.lean` and the demo into a Lean project, ensure the module import path is configured, then run the file with `lake env lean`. The archive-specific direct-import probe is separately provided as `riemann-hypothesis/DirectImportHypsAlt.lean.template`; it is not part of this repository's build roots.
