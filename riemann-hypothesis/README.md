@@ -9,7 +9,7 @@
 
 ## What this repository contains
 
-A machine-checked formal countermodel and architectural audit isolating the **Continuum Gap**: once `anyGeometry` reduces the geometric payload to `True` on the live execution path, the remaining classical, literature, slope, and windowed Green interfaces (`ClassicalBoundaryPackage`, `BoundAtTwoThreeFamilyFonShape`, `ThetaLocalInputsShape`, and `VWinGreenBridgeShape`) admit an explicit witness (`fakeMultiplicity`) that violates the surviving multiplicity bound.
+A machine-checked formal countermodel and architectural audit isolating the **Continuum Gap**: once `anyGeometry` reduces the geometric payload to `True` on the live execution path, the remaining classical, literature, slope, and windowed Green interfaces (`ClassicalBoundaryPackage`, `BoundAtTwoThreeFamilyFonShape`, `ThetaLocalInputShape`, and `VWinGreenBridgeShape`) admit an explicit witness (`fakeMultiplicity`) that violates the surviving multiplicity bound.
 
 ## Confirmed findings
 
@@ -18,9 +18,10 @@ A machine-checked formal countermodel and architectural audit isolating the **Co
 - **Pass-through transport.** In `OAt`, the content-bearing field is `lam`; the `geo` field is populated only by `anyGeometry` and transported through `GeoCl` across `nonempty_hyps_definite_side_of_closed_bound` without being eliminated into non-trivial analytic inequalities.
 - **Classical & literature extraction (`40e56bab`).**
   - `hA` (`ThetaIntegralsAgree`) and `hM` (`LocalMatching`) are discharged via `PositivityTheory.ThKR.theoremK_head2` applied strictly to classical literature (`eis_bl_of_literature` + `siegel_weil_std_of_literature`).
-  - `hX` (`CovolumeBoundOfX`, `…/LiftLambdaBound.lean`) is an existential eventual $L^3$ covolume bound (`∃ C0 ≥ 0, …`) of classical strength.
+  - `hX` (`CovolumeBoundOfX`, `GlobalTheory.CovTop`) is modeled as an existential eventual $L^3$ covolume bound coupled to surviving mass (`∃ C0 ≥ 0, survivingMass ≤ C0`). Because `C0` is existentially quantified rather than bounded by `errorBound + windowLength`, `fakeMultiplicity` satisfies `hX` with `C0 = 100` while violating the RH-strength bound (`100 > 2`).
   - `BoundAtTwoThreeFamilyFonAlt` (`…/BoundAtTwoThreeFamilyFon.lean`) is an existential large-$x$ family bound (`∃ C x0, ∀ x ≥ x0, …`) with zero `GeoP` dependence.
   - `DefiniteSideCondition` (`…/DefiniteSideCondition.lean`) and `VWin` + `green_of_regular` (`…/TopPlug.lean`) carry the analytic definite-side and windowed Green positivity bridge with zero `GeoP` references.
+- **Extracted Upper Bottleneck (`TopPlug.lean`).** Auditing the extracted path above `nonempty_hyps_definite_side_of_closed_bound` confirms that `every_character_of_green_v_win` (`TopPlug.lean`, 19 lines) makes zero reference to `GeoP` or `anyGeometry`: the lower geometric tower enters `TopPlug.lean` only through a single existential witness `Nonempty (HypsAlt ... DefiniteSideCondition)`.
 - **Verified interface disproof (`Disproof.lean`).** Instantiating `ThetaConstraints.lean` with faithful statement shapes for all extracted live-path interfaces admits a `sorry`-free countermodel (`fakeMultiplicity`, surviving mass `100 > errorBound + windowLength = 2`), proving `Disproof.challenge_lemma_false`.
 - **Swap test versus non-empty countermodel.** Setting `anyGeometry := False` empties the filtered object collection, breaking downstream `Nonempty` obligations while reducing universal claims over the empty collection to vacuous truth (documented as an architectural observation in `SWAP_TEST.md`). Conversely, `Disproof.lean` evaluates the multiplicity bound on the non-empty singleton containing `fakeMultiplicity`, proving that even with an inhabited witness satisfying every extracted constraint, the multiplicity bound fails.
 
