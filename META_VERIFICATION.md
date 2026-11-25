@@ -50,7 +50,7 @@ Each question requires separate implementation and validation. In particular, le
 
 ## 4. Case Study and Scope
 
-The `riemann-hypothesis/` materials document an audit of an extracted dependency path and a countermodel for a modeled interface. The countermodel's conclusions are limited to that modeled interface; it does not import the large archive's `.olean` tree or refute the archive's internal declarations under their exact definitions. See `riemann-hypothesis/COUNTERMODEL.md` for the interface-fidelity qualification.
+The `riemann-hypothesis/` materials document an audit of an extracted dependency path and a countermodel for a modeled interface. The countermodel's conclusions are limited to that modeled interface; it does not import the large archive's `.olean` tree or refute the archive's internal declarations under their exact definitions. The case-study notes report that `RowsU` is a substantive analytic target on the inspected live path; see `riemann-hypothesis/STRUCTURAL_INTEGRITY.md`.
 
 This work does not assert that Lean's kernel is unsound, that a kernel-accepted term fails its stated type, or that a mathematical theorem is false. It motivates independent architectural review alongside kernel checking, while keeping the scope of each tool and formal result explicit.
 
@@ -63,3 +63,23 @@ lake build
 ```
 
 For a standalone experiment, copy `ScaffoldingAudit.lean` and the demo into a Lean project, ensure the module import path is configured, then run the file with `lake env lean`. The archive-specific direct-import probe is separately provided as `riemann-hypothesis/DirectImportHypsAlt.lean.template`; it is not part of this repository's build roots.
+
+## 6. General Principle: Unconstrained Higher-Dimensional Scaffolding
+
+A deep recursive or higher-dimensional construction can type-check while contributing no constraint on the intended mathematical payload when, for example, a vacuous predicate is forwarded through the live path or an existential threshold is not linked to the target budget. These are interface-level possibilities to investigate, not conclusions that follow merely from the size or shape of a formalization.
+
+1. **Vacuous base predicates.** A definition such as `anyGeometry := fun _ _ _ => True` carries no predicate restriction at those arguments. In ordinary logic, `P ∧ True` is equivalent to `P`; Lean's kernel checks the resulting types but does not infer that a vacuous field was intended to encode substantive geometry. Whether such a field is actually load-bearing must be determined from the declarations and proof terms on the relevant path.
+2. **Uncoupled existential thresholds.** An interface containing an existential bound such as `∃ C₀ ≥ 0, ...` may fail to constrain a target budget if the required relationship is absent. Whether that permits violating realizations depends on the exact predicates and quantifiers. The X-files countermodel establishes this only for its explicitly modeled multiplicity interface, not for the archive's `RowsU` or exact internal interfaces.
+
+**What this repository proves at the Lean level on the modeled interface:**
+
+- `Disproof.challenge_lemma_false` and related closed results exhibit a violating realization for the explicitly formalized boundary package, where the base invariants are modeled vacuously and the growth-bound shape is not coupled to the target multiplicity budget.
+- `ScaffoldingAudit.lean` can report certain syntactically `True` definitions in its traversed value-dependency cone. Such a report is a lead for human review, not a verdict of unsoundness or theorem invalidity.
+
+**What this does not claim:**
+
+- That Lean's kernel is unsound, or that a kernel-accepted term fails its stated type.
+- That the archive's `RiemannHypothesis` is false, or that archive `RowsU` / its Harder–Narasimhan content is vacuous. The case-study report identifies `RowsU` as a substantive analytic target on the live path into `TopPlug` (see `riemann-hypothesis/STRUCTURAL_INTEGRITY.md`).
+- That every deep formalization is hollow. The methodological point is only that kernel acceptance alone does not certify the architectural necessity of every intermediate construction.
+
+**Verification rule (methodological):** pair kernel type-checking with (a) dependency-cone review to investigate whether relevant payloads are used or only forwarded, and (b) countermodel testing against an explicitly scoped interface. Conclusions from (b) apply only to the interface actually formalized; name-based dependency results also do not, on their own, prove semantic absence.
