@@ -11,20 +11,51 @@ jobs:
           ref: original
           fetch-depth: 1
 
-      - uses: leanprover/lean-action@v1
-        with:
-          use-github-cache: false
-          build: false
-
-      - name: Download cache and run #print probe
+      - name: Install elan with retries
         run: |
-          lake exe cache get
-          lake build --no-build
+          curl --retry 5 --retry-delay 5 --retry-all-errors -sSf https://githubusercontent.com | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> $GITHUB_PATH
+
+      - name: Build target modules and run #print probe
+        run: |
+          elan toolchain install $(cat lean-toolchain)
+          lake exe cache get || true
+          lake build \
+            Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition \
+            Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
           cat << 'EOF' > DirectImportHypsAlt.lean
+          import Lean
           import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition
           import Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.Hyps
 
+          open Lean Elab Command
+
           #print GlobalTheory.Fc.HypsAlt
           #print GlobalTheory.Fc.DefiniteSideCondition
+          #print GlobalTheory.Fc.D3
+          #print Formalism.MainNotions.Closed
+
+          #eval show CommandElabM Unit from do
+            let env ← getEnv
+            let roots := [`GlobalTheory.Fc.HypsAlt, `GlobalTheory.Fc.DefiniteSideCondition]
+            let mut visited : NameSet := {}
+            let mut queue : List Name := roots
+            let mut geoHits : List Name := []
+            while !queue.isEmpty do
+              let curr :: rest := queue | break
+              queue := rest
+              if visited.contains curr then continue
+              visited := visited.insert curr
+              let s := curr.toString
+              if s.startsWith "Lean." || s.startsWith "Init." || s.startsWith "Std." || s.startsWith "Mathlib." then
+                continue
+              if s.contains "Geo" || s.contains "anyGeometry" then
+                geoHits := curr :: geoHits
+              if let some cinfo := env.find? curr then
+                let deps := cinfo.type.getUsedConstants.toList ++
+                  (match cinfo.value? with | some v => v.getUsedConstants.toList | none => [])
+                queue := queue ++ deps.eraseDups
+            IO.println s!"Active non-stdlib constants in HypsAlt/DefiniteSideCondition cone: {visited.size}"
+            IO.println s!"Geo-related constants in cone: {geoHits}"
           EOF
           lake env lean DirectImportHypsAlt.lean
