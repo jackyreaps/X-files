@@ -2,7 +2,7 @@
 
 ## Verification and Architectural Review
 
-Lean's kernel checks that a proof term has its declared type under the project's axioms. That establishes formal correctness relative to those definitions; it does not, by itself, establish that a proof follows its author's intended mathematical narrative. At large scale, inspecting the active declarations and interfaces can help reviewers understand what a result actually depends on.
+Lean's kernel checks that a proof term has its declared type under the project's axioms. That establishes formal correctness relative to those definitions; it does not, by itself, establish that a proof follows its author's intended mathematical narrative. At large scale, inspecting active declarations and interfaces can help reviewers understand what a result actually depends on.
 
 Architectural audits are complementary diagnostics. A reported dependency or trivial definition is a lead for review, not evidence that a theorem is false, unsound, or invalid. Likewise, a scan that finds no suspicious names does not prove that no semantic dependency exists.
 
@@ -32,6 +32,15 @@ The following findings are from the reported direct-import probe against the arc
 - `Closed 𝒞 P` is quantified over families and their members; emptiness of an indexing family alone is not a reduction of the declaration to `True`.
 - The non-geometric analytic target identified at this `TopPlug` input is `RowsU`, together with the `Closed` / `LinkN` indexing.
 
-These observations refine the earlier extracted-path discussion: on the checked declarations, the named geometric predicate payload is absent from this interface, while the row-data package is the substantive obligation. The name-based dependency scan is not a semantic proof that all geometric content is absent, and the result does not establish whether `RowsU` itself is true, sufficient, or independently justified. Further content-level analysis should focus on `RowsU` and its indexing.
+These observations refine the earlier extracted-path discussion: on the checked declarations, the named geometric predicate payload is absent from this interface, while the row-data package is the substantive obligation. The name-based dependency scan is not a semantic proof that all geometric content is absent, and the result does not establish whether `RowsU` itself is true, sufficient, or independently justified.
 
-Kernel acceptance of the archive's `riemannHypothesis` term remains untouched. Option 2 closes the direct-import inspection of the stated interface; it does not upgrade the separate modeled countermodel into a refutation of the archive theorem.
+### Content audit of `Formalism.L2.RowDataTransport.RowsU` (archive `main`)
+
+The following are reported results of the separate content audit of `RowsU`:
+
+- **Cone and vacuity scan:** the reported cone contains **10,092** non-stdlib constants, with **zero** custom `Prop := True` definitions detected by that scan; Lean's built-in `trivial` appears.
+- **Mathematical content:** the printed statement is reported to include a Harder–Narasimhan full-lattice assertion over a totally complex field `D.what₂.LL`, a full lattice (`Submodule.IsFullLattice`), infinite-place Hermitian factorization `(X₀ v)⁻ᴴ (X₀ v)⁻¹ = H_V`, an operator-norm bound `opNormAt ... ^ 2 ≤ Real.exp hn.hPn`, and a log-slope comparison `Real.log (cb.sq j v) ≤ ∑ hn.sz`.
+- **Status:** `RowsU` is a substantive analytic statement, not a vacuous stub, and it is not the target of X-files' `Disproof.lean`.
+- **Downstream zero-free step:** the quantitative zero-free conclusion is reported downstream in `TopPlug`, via `zeroFreeAll_of_topG` at `la := 3/2`, together with Green and `VWin`; it is not a conclusion of `RowsU` alone.
+
+The refined picture is therefore: the named `GeoP` / `anyGeometry` tower is vestigial transport into the inspected `TopPlug` input, while the substantive analytic content on this cone lies in `IndefR` / `RowDataTransport.RowsU` and the downstream windowed-Green bounds. These are reported inspection results, not an independent verification performed by this repository's CI. Kernel acceptance of the archive's `riemannHypothesis` term remains untouched. Further work, if pursued, is content-level analysis of `RowsU` and its hypotheses, rather than additional name-based searches for `anyGeometry` in this cone.
