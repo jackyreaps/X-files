@@ -11,14 +11,13 @@ jobs:
           ref: original
           fetch-depth: 1
 
-      - name: Install elan, build target modules, and run #print probe
+      - uses: leanprover/lean-action@v1
+        with:
+          use-github-cache: false
+          build: false
+
+      - name: Build target modules and run #print probe
         run: |
-          set -e
-          curl -fL --retry 8 --retry-delay 5 --retry-all-errors \
-            https://githubusercontent.com -o /tmp/elan-init.sh
-          sh /tmp/elan-init.sh -y --default-toolchain none
-          export PATH="$HOME/.elan/bin:$PATH"
-          elan toolchain install $(cat lean-toolchain)
           lake exe cache get || true
           lake build \
             Development.AutomorphicArithmetic.ThetaCorrespondence.ThetaPairLifts.ThirdPlaceSeries.DefiniteSideCondition \
