@@ -46,7 +46,7 @@ structure CompactEndgameModel where
     guarantee: for EVERY finite scale `x_fin` and EVERY violation height `M > 0`, there exists
     a valid `CompactEndgameModel` whose error at `x_fin` exceeds `M` (`M < model.err x_fin`). -/
 theorem compact_eventually_bound_allows_arbitrary_finite_violation
-    (x_fin : Nat) (M : Int) (hM : 0 < M) :
+    (x_fin : Nat) (M : Int) (_hM : 0 < M) :
     ∃ model : CompactEndgameModel,
       model.m = 1 ∧ model.budget = 0 ∧ M < model.err x_fin := by
   refine ⟨{
@@ -61,6 +61,7 @@ theorem compact_eventually_bound_allows_arbitrary_finite_violation
       simp [hNotLe]⟩
   }, rfl, rfl, ?_⟩
   simp
+  omega
 
 /-- **Disproof Theorem 2 (`compact_stretched_exp_loses_at_finite_scale`):**
     Refutes uniform finite-scale validity of the `ChainValuation` (`60 * log₂ x`) vs.
@@ -79,7 +80,7 @@ theorem compact_stretched_exp_loses_at_finite_scale
     is **invariant** under arbitrary changes to the higher-dimensional ranks `(k, r)` and
     `dirCost`—confirming that the downstream inequality is purely 1D (`m * rem ≤ budget`). -/
 theorem compact_sandwich_collapses_to_1d_without_rank_force
-    (k₁ r₁ k₂ r₂ m : Nat) (dirCost₁ dirCost₂ rem budget : Int) :
+    (k₁ _r₁ k₂ _r₂ m : Nat) (dirCost₁ dirCost₂ rem budget : Int) :
     (∃ mid₁ : Int,
       (m : Int) * (k₁ : Int) * dirCost₁ ≤ mid₁ ∧
       mid₁ ≤ (m : Int) * (k₁ : Int) * dirCost₁ - (m : Int) * rem + budget) ↔
