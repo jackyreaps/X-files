@@ -1,5 +1,4 @@
 import Mathlib.Data.Nat.Basic
-import Mathlib.Tactic.Omega
 import ScaffoldingAudit
 
 /-!
