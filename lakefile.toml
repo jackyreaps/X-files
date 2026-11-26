@@ -22,5 +22,6 @@ roots = [
   "LivePathExtraction",
   "VacuousGeometryBridge",
   "ContinuumGapCritique",
-  "AlpogeObstruction"
+  "AlpogeObstruction",
+  "CompactDisproof"
 ]
