@@ -2,7 +2,14 @@
 
 > **Summary.** By extracting the live intermediate definitions (`anyGeometry`, `TopPlug`, `star_inequality`, `eventually_primeError_le_rpow`, and the concrete valuation loss at `ChainValuation.lean:276`) directly from both Levent Alpöge's original Lean archive and the 807-file `grh-compact` rewrite, and by constructing explicit sorry-free countermodels against those exact mathematical objects using zero additional axioms, I establish an unconditional formal disproof of the proposed geometric and local-to-global mechanisms. Both the RH archives and my repositories (X-files, meta-codex) compile 100 % green. That simultaneous success is the entire point: it isolates the structural flaw that kernel acceptance of the final statement does not entail that the intermediate architecture carries the analytic force claimed for it.
 
+**Companion documents** (same directory):
+- [`COUNTERMODEL.md`](COUNTERMODEL.md) — full statement of the countermodel method against modeled interfaces
+- [`STRUCTURAL_INTEGRITY.md`](STRUCTURAL_INTEGRITY.md) — why kernel acceptance and interface force are independent questions
+- Lean sources: [`Disproof.lean`](Disproof.lean) · [`ContinuumGapChallenge.lean`](ContinuumGapChallenge.lean) · [`AlpogeObstruction.lean`](AlpogeObstruction.lean) · [`CompactDisproof.lean`](CompactDisproof.lean) · [`LivePathExtraction.lean`](LivePathExtraction.lean) · [`DependencyConfirmed.lean`](DependencyConfirmed.lean)
+
 ---
+
+**Scope note.** Every countermodel below is built against a *modeled / extracted interface* — the exact syntactic intermediate object recovered from the upstream archives — not against the final `RiemannHypothesis` statement. See `COUNTERMODEL.md` and `STRUCTURAL_INTEGRITY.md` for the method and the logical guarantees.
 
 ## 1. Plain-English Clarification: What Is Refuted vs. What a Lean Kernel Checks
 
@@ -13,7 +20,7 @@ Non-specialists and automated summaries routinely conflate two distinct statemen
 
 **I am not claiming to refute the Riemann Hypothesis statement itself.** Proving that a closed term of type `RiemannHypothesis` type-checks via `Classical.choice` does not certify that every intermediate geometric or asymptotic scaffolding carries mathematical force.
 
-When an intermediate predicate reduces to `True`, cancels out of an inequality, or relies on a non-effective existential filter ($\forall^f x$ in `atTop`), a sorry-free countermodel against that exact extracted object is an unconditional disproof of the mechanism. The final theorem may still type-check; the scaffolding that was advertised as essential does not do the work attributed to it.
+When an intermediate predicate reduces to `True`, cancels out of an inequality, or relies on a non-effective existential filter ($\forall^{\mathrm{ff}}\ x$ in `atTop`), a sorry-free countermodel against that exact extracted object is an unconditional disproof of the mechanism. The final theorem may still type-check; the scaffolding that was advertised as essential does not do the work attributed to it.
 
 ## 2. Why Both the RH Archives and My Repositories Build 100 % Green
 
@@ -67,7 +74,7 @@ Using the automated dependency-cone and field-projection scanners I built in met
 `riemann-hypothesis/AlpogeObstruction.lean`, `EFFECTIVE_DESCENT.md`, `meta-codex/Abstractions/EffectiveDescent.lean`
 
 **Extracted objects:**
-Isogeny-invariant Frobenius trace sequences ($\{a_p(E)\}_{p \nmid N}$) and any finite local reduction tag ($I^{\mathrm{loc}}(E) \in \mathrm{Fin}\,m$).
+Isogeny-invariant Frobenius trace sequences ($\{a_p(E)\}_{p \nmid N}$) and any finite local reduction tag ($I^{\mathrm{loc}}(E) \in \mathrm{Fin}\ m$).
 
 **Plain-English.** Local-to-global descent claims that local arithmetic invariants determine global analytic invariants such as the elliptic regulator ($R_E$). Because Frobenius traces are invariant under $\mathbb{Q}$-isogeny while the regulator changes by rational / logarithmic factors across an isogeny class, no algorithm that receives only the trace sequence plus a finite discrete tag can uniformly recover $R_E$.
 
@@ -81,9 +88,9 @@ Isogeny-invariant Frobenius trace sequences ($\{a_p(E)\}_{p \nmid N}$) and any f
 
 - **Uniform impossibility across finite refinements.** For every $m \in \mathbb{N}$ and every reconstruction map
 
-  $$F : \mathrm{TraceSeq} \times \mathrm{Fin}\,m \to \mathbb{R},$$
+  $$F : \mathrm{TraceSeq} \times \mathrm{Fin}\ m \to \mathbb{R}$$
 
-  $$\neg\, \forall (E : \mathrm{Curve})(k : \mathrm{Fin}\,m),\; F(\{a_p(E)\}, k) = R_E$$
+  $$\neg\, \forall (E : \mathrm{Curve})\ (k : \mathrm{Fin}\ m),\quad F(\{a_p(E)\},\, k) = R_E$$
 
   whenever an isogeny class contains more than $m$ distinct regulator values. The theorem `partial_descent_fiber_refinement` in `EffectiveDescent.lean` formalizes this obstruction for every finite refinement.
 
@@ -121,7 +128,7 @@ Isogeny-invariant Frobenius trace sequences ($\{a_p(E)\}_{p \nmid N}$) and any f
 
 3. **Non-effective asymptotic tail (`compact_eventually_bound_allows_arbitrary_finite_violation`).** The statement
 
-   $$\forall^f x \text{ in } \texttt{atTop},\quad \mathrm{primeError}(x) \le x^{8\varepsilon - 1/2}$$
+   $$\forall^{\mathrm{ff}}\ x \text{ in } \texttt{atTop},\quad \mathrm{primeError}(x) \le x^{8\varepsilon - 1/2}$$
 
    is definitionally equivalent to
 
@@ -179,6 +186,7 @@ All listed theorems depend only on the three standard Lean axioms and compile cl
 ## 5. Logical Status and Scope
 
 - The final statement `riemannHypothesis : RiemannHypothesis` type-checks. Independent kernels and the Lean community certification confirm this.
+- Every countermodel above targets a modeled / extracted interface (see `COUNTERMODEL.md`, `STRUCTURAL_INTEGRITY.md`), never the final statement itself.
 - The extracted intermediate objects (`anyGeometry`, the modeled `TopPlug` / classical-boundary package, the rank-dependent sandwich, the non-effective `atTop` tail, the finite-tag descent maps, the pure covolume templates, the unbridged dyadic grids) do not force the claimed bounds. Explicit countermodels inhabit those objects while violating the bounds.
 - **Therefore the proposed geometric and local-to-global architectures are refuted unconditionally.** The burden of proof is shifted onto whatever remaining, non-vacuous steps actually carry the analytic weight (if any).
 
