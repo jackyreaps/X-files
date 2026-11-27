@@ -22,6 +22,17 @@ Non-specialists and automated summaries routinely conflate two distinct statemen
 
 When an intermediate predicate reduces to `True`, cancels out of an inequality, or relies on a non-effective existential filter ($\forall^{\mathrm{ff}}\ x$ in `atTop`), a sorry-free countermodel against that exact extracted object is an unconditional disproof of the mechanism. The final theorem may still type-check; the scaffolding that was advertised as essential does not do the work attributed to it.
 
+### Note: July Implementation Bug vs. Architectural Blind Spot
+
+The July 2026 nested-inductive kernel bug (#14576) that permitted derivation of `False` was an implementation error; it was patched in Lean 4.32.2 and is absent from the post-fix kernels and independent checkers used on the RH archives.
+
+That fix did **not** alter a deeper, permanent property of the verification model: kernel type-checking is syntactic. A sound kernel will still accept:
+- vacuous wrappers (`anyGeometry := True`),
+- rank-cancelling sandwiches (`star_inequality`),
+- non-effective existential filters (`∀ᶠ x in atTop` via `Classical.choice`)
+
+without flagging that the advertised geometry or higher-dimensional structure contributes zero deductive force. The meta-codex linters (`#audit_theorem`, `#audit_fields`, `#audit_passthrough`, `#audit_fibers`, `#audit_inductives`) exist precisely to expose this architectural layer that kernel replay, by design, does not inspect.
+
 ## 2. Why Both the RH Archives and My Repositories Build 100 % Green
 
 In formal logic the simultaneous green builds are completely consistent and expose the exact structural flaw:
