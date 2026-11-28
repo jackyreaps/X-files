@@ -1,5 +1,5 @@
 name = "X-files"
-defaultTargets = ["RiemannHypothesis"]
+defaultTargets = ["RiemannHypothesis", "EffectiveRH"]
 
 [[require]]
 name = "mathlib"
@@ -24,4 +24,11 @@ roots = [
   "ContinuumGapCritique",
   "AlpogeObstruction",
   "CompactDisproof"
+]
+
+[[lean_lib]]
+name = "EffectiveRH"
+srcDir = "effective-rh"
+roots = [
+  "EffectiveBridge"
 ]
